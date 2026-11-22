@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ฮิสเทอรีซิส: Arduino Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../engine/arduino-sim.css">
+</head>
+<body>
+<div id="app"></div>
+<script src="../engine/arduino-core.js"></script>
+<script src="../engine/arduino-sim.js"></script>
+<script>
+ArduinoSim.mount({
+  title: "ไฟอัตโนมัติและฮิสเทอรีซิส",
+  back: "../index.html",
+  lede: "บทที่ 4 หัวข้อ 4.4 ค่าที่อ่านจากเซนเซอร์จริงมีสัญญาณรบกวนเสมอ ถ้าความสว่างอยู่ใกล้ค่าเกณฑ์ ไฟที่ใช้ค่าเกณฑ์เดียวจะติดดับสลับถี่",
+  serial: true,
+  board: [
+    { type: "ldr", pin: "A1", label: "Photoresistor (ความสว่าง)", init: 40, noise: 12 },
+    { type: "led", pin: 8, color: "yellow", label: "ไฟส่องสว่าง" },
+  ],
+  trace: { title: "ตารางการสลับของไฟ (เพิ่มแถวเมื่อไฟเปลี่ยนสถานะ)", at: "loopEnd", dedupe: true, empty: "ยังไม่จบรอบแรกของ loop()",
+    cols: [{ label: "รอบที่", iter: true }, { label: "light", var: "light", nokey: true }, { label: "ไฟ (ขา 8)", pin: 8, hl: true }] },
+  missions: [
+    { title: "ค่าเกณฑ์เดียว", speed: 14, realtime: 1, code: `// ตัวอย่างที่ 4.3 ไฟส่องสว่างอัตโนมัติ: มืดแล้วไฟติด
+const int LDR_PIN = A1;
+const int LED_PIN = 8;
+const int DARK_LEVEL = 300;         // ค่าเกณฑ์ ได้จากการวัดค่าตอนมืดและตอนสว่าง
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(LED_PIN, OUTPUT);
+}
+
+void loop() {
+  int light = analogRead(LDR_PIN);
+  if (light < DARK_LEVEL) {
+    digitalWrite(LED_PIN, HIGH);    // มืด เปิดไฟ
+  } else {
+    digitalWrite(LED_PIN, LOW);     // สว่าง ปิดไฟ
+  }
+  Serial.println(light);
+  delay(200);
+}
+`,
+      text: "ความสว่างตั้งไว้ให้ค่าที่อ่านได้อยู่ใกล้ 300 พอดี และมีสัญญาณรบกวนประมาณ ±12 กด “รันต่อเนื่อง” ประมาณ 20 รอบ แล้วนับแถวในตาราง",
+      q: "คำถาม: ใน 20 รอบไฟเปลี่ยนสถานะกี่ครั้ง (แถวแรกคือสถานะเริ่มต้น) ถ้าเป็นคอมเพรสเซอร์หรือมอเตอร์ การสลับถี่แบบนี้มีผลเสียอย่างไร" },
+    { title: "ฮิสเทอรีซิส: ติดเมื่อ < 300 ดับเมื่อ > 400", speed: 14, realtime: 1, code: `// เฉลยข้อ 6 ไฟอัตโนมัติแบบมีฮิสเทอรีซิส ติดเมื่อ < 300 ดับเมื่อ > 400
+const int LDR_PIN = A1;
+const int LED_PIN = 8;
+const int ON_LEVEL = 300;
+const int OFF_LEVEL = 400;
+bool lampOn = false;                // สถานะไฟปัจจุบัน
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(LED_PIN, OUTPUT);
+}
+
+void loop() {
+  int light = analogRead(LDR_PIN);
+  if (light < ON_LEVEL) {
+    lampOn = true;                  // มืดพอ เปิดไฟ
+  } else if (light > OFF_LEVEL) {
+    lampOn = false;                 // สว่างพอ ปิดไฟ
+  }                                 // ระหว่าง 300 ถึง 400 คงสถานะเดิม
+  digitalWrite(LED_PIN, lampOn);
+  Serial.println(light);
+  delay(200);
+}
+`,
+      text: "ใช้ความสว่างเท่าเดิม กด “รันต่อเนื่อง” ประมาณ 20 รอบ จากนั้นเลื่อนความสว่างขึ้นช้า ๆ จนไฟดับ",
+      q: "คำถาม: ไฟเปลี่ยนสถานะกี่ครั้ง ไฟดับเมื่อค่าที่อ่านได้ประมาณเท่าใด ทำไมช่วง 300 ถึง 400 จึงทำให้ไฟไม่กะพริบ" },
+    { title: "ปรับความกว้างของช่วงเอง", speed: 14, realtime: 1, editable: true, code: `// เฉลยข้อ 6 ไฟอัตโนมัติแบบมีฮิสเทอรีซิส ติดเมื่อ < 300 ดับเมื่อ > 400
+const int LDR_PIN = A1;
+const int LED_PIN = 8;
+const int ON_LEVEL = 300;
+const int OFF_LEVEL = 400;
+bool lampOn = false;                // สถานะไฟปัจจุบัน
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(LED_PIN, OUTPUT);
+}
+
+void loop() {
+  int light = analogRead(LDR_PIN);
+  if (light < ON_LEVEL) {
+    lampOn = true;                  // มืดพอ เปิดไฟ
+  } else if (light > OFF_LEVEL) {
+    lampOn = false;                 // สว่างพอ ปิดไฟ
+  }                                 // ระหว่าง 300 ถึง 400 คงสถานะเดิม
+  digitalWrite(LED_PIN, lampOn);
+  Serial.println(light);
+  delay(200);
+}
+`,
+      text: "กด “แก้โค้ด” แล้วเปลี่ยน OFF_LEVEL เป็น 305 ทำให้ช่วงแคบลง แล้วรันต่อเนื่องดูผล ลองหาความกว้างของช่วงที่แคบที่สุดที่ไฟยังไม่กะพริบ",
+      q: "คำถาม: ความกว้างของช่วงต้องมากกว่าอะไรจึงจะไม่กะพริบ" },
+  ],
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>analogRead: Arduino Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../engine/arduino-sim.css">
+</head>
+<body>
+<div id="app"></div>
+<script src="../engine/arduino-core.js"></script>
+<script src="../engine/arduino-sim.js"></script>
+<script>
+ArduinoSim.mount({
+  title: "analogRead และวงจรแบ่งแรงดัน",
+  back: "../index.html",
+  lede: "บทที่ 4 หัวข้อ 4.2 ถึง 4.4 จากแรงดันที่ขาอนาล็อก ไปเป็นค่า ADC 0 ถึง 1023 และแปลงกลับเป็นแรงดันด้วยโค้ด",
+  serial: true,
+  board: [
+    { type: "pot", pin: "A0", label: "Potentiometer", min: 0, max: 100, unit: "% ของช่วงหมุน", init: 50 },
+    { type: "ldr", pin: "A1", label: "Photoresistor (ความสว่าง)", init: 50 },
+  ],
+  trace: { title: "ตารางติดตามค่า (หนึ่งแถวต่อ loop() หนึ่งรอบ)", at: "loopEnd", empty: "ยังไม่จบรอบแรกของ loop()",
+    cols: [{ label: "รอบที่", iter: true }, { label: "adc", var: "adc" }, { label: "volt", var: "volt" }, { label: "light", var: "light" }] },
+  missions: [
+    { title: "อ่าน potentiometer แล้วแปลงเป็นแรงดัน", speed: 8, realtime: 1, predictVars: ["volt"], code: `// ตัวอย่างที่ 4.1 อ่านค่า potentiometer ที่ขา A0 แล้วแปลงเป็นแรงดัน
+const int POT_PIN = A0;
+
+void setup() {
+  Serial.begin(9600);               // ขาอนาล็อกไม่ต้องใช้ pinMode()
+}
+
+void loop() {
+  int adc = analogRead(POT_PIN);    // ได้ค่า 0 ถึง 1023
+  float volt = adc * 5.0 / 1023.0;  // ใช้ 5.0 เพื่อให้คำนวณแบบทศนิยม
+  Serial.print("ADC = ");
+  Serial.print(adc);
+  Serial.print("   V = ");
+  Serial.println(volt);
+  delay(500);
+}
+`,
+      text: "พอตตั้งไว้กลางช่วง กด “ทำบรรทัดถัดไป” ก่อนคำนวณ volt ตัวจำลองจะให้ทำนายค่า จากนั้นเลื่อนพอตไปค่าอื่นแล้วทำซ้ำ",
+      q: "คำถาม: ค่า ADC 512 คิดเป็นแรงดันเท่าใด ถ้าแรงดันเปลี่ยน 1 mV ค่า ADC จะเปลี่ยนหรือไม่ เพราะอะไร" },
+    { title: "ลืมใส่ .0 (มีจุดผิด)", speed: 8, realtime: 1, predictVars: ["volt"], editable: true, code: `// ตัวอย่างที่ 4.1 อ่านค่า potentiometer ที่ขา A0 แล้วแปลงเป็นแรงดัน
+const int POT_PIN = A0;
+
+void setup() {
+  Serial.begin(9600);               // ขาอนาล็อกไม่ต้องใช้ pinMode()
+}
+
+void loop() {
+  int adc = analogRead(POT_PIN);    // ได้ค่า 0 ถึง 1023
+  float volt = adc * 5 / 1023;      // ลืมใส่ .0
+  Serial.print("ADC = ");
+  Serial.print(adc);
+  Serial.print("   V = ");
+  Serial.println(volt);
+  delay(500);
+}
+`,
+      text: "โค้ดนี้เขียน adc * 5 / 1023 ทำนายค่า volt ก่อนทำบรรทัดนั้น แล้วเลื่อนพอตไปหลายตำแหน่ง",
+      q: "คำถาม: volt เป็นได้กี่ค่า ทำไมเป็นจำนวนเต็มทั้งที่ประกาศเป็น float กด “แก้โค้ด” แล้วแก้ให้ถูก" },
+    { title: "Photoresistor ต่อไว้ฝั่ง 5V", speed: 8, realtime: 1, code: `// ตัวอย่างที่ 4.2 อ่านค่าความสว่างจาก photoresistor ที่ขา A1
+const int LDR_PIN = A1;
+
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+  int light = analogRead(LDR_PIN);  // สว่างมาก = ค่ามาก (photoresistor อยู่ฝั่ง 5V)
+  Serial.print("Light = ");
+  Serial.println(light);
+  delay(500);
+}
+`,
+      text: "photoresistor ต่อกับ 5V และตัวต้านทาน 10 kΩ ต่อลง GND แบบเดียวกับรูปที่ 4.4 กด “รันต่อเนื่อง” แล้วเลื่อนความสว่างจากมืดไปสว่าง ดูความต้านทาน แรงดัน และค่าที่อ่านได้",
+      q: "คำถาม: สว่างขึ้นแล้วค่าที่อ่านได้เพิ่มหรือลด เพราะความต้านทานของ photoresistor เปลี่ยนอย่างไร" },
+    { title: "สลับตำแหน่ง photoresistor", speed: 8, realtime: 1, code: `// ตัวอย่างที่ 4.2 อ่านค่าความสว่างจาก photoresistor ที่ขา A1
+const int LDR_PIN = A1;
+
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+  int light = analogRead(LDR_PIN);  // สว่างมาก = ค่ามาก (photoresistor อยู่ฝั่ง 5V)
+  Serial.print("Light = ");
+  Serial.println(light);
+  delay(500);
+}
+`, board: { 1: { position: "bottom" } },
+      text: "ภารกิจนี้สลับให้ตัวต้านทาน 10 kΩ อยู่ฝั่ง 5V และ photoresistor อยู่ฝั่ง GND ทำแบบเดียวกับภารกิจ 3",
+      q: "คำถาม: ผลต่างจากภารกิจ 3 อย่างไร ถ้าใช้วงจรนี้ทำไฟอัตโนมัติ เงื่อนไขในโค้ดต้องเปลี่ยนอย่างไร" },
+  ],
+});
+</script>
+</body>
+</html>

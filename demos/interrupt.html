@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>อินเทอร์รัปต์: Arduino Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../engine/arduino-sim.css">
+</head>
+<body>
+<div id="app"></div>
+<script src="../engine/arduino-core.js"></script>
+<script src="../engine/arduino-sim.js"></script>
+<script>
+ArduinoSim.mount({
+  title: "อินเทอร์รัปต์",
+  back: "../index.html",
+  lede: "บทที่ 3 หัวข้อ 3.7 นับชิ้นงานด้วยการอ่านปุ่มใน loop() เทียบกับอินเทอร์รัปต์ เมื่อ loop() มีงานที่ใช้เวลานาน",
+  serial: true,
+  board: [{ type: "button", pin: 2, label: "สวิตช์ตรวจชิ้นงาน" }],
+  trace: { title: "ตารางติดตามค่า (หนึ่งแถวต่อ loop() หนึ่งรอบ)", at: "loopEnd", empty: "ยังไม่จบรอบแรกของ loop()",
+    cols: [{ label: "รอบที่", iter: true }, { label: "เวลาจำลอง", time: true }, { label: "กดไปแล้ว", presses: 0 }, { label: "count", var: "count" }] },
+  missions: [
+    { title: "อ่านปุ่มใน loop() ที่มี delay(1000)", speed: 10, realtime: 1, code: `const int SENSOR_PIN = 2;         // ปุ่มแทนสวิตช์ตรวจชิ้นงาน
+int count = 0;
+int lastState = HIGH;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(SENSOR_PIN, INPUT_PULLUP);
+}
+
+void loop() {
+  int state = digitalRead(SENSOR_PIN);
+  if (lastState == HIGH && state == LOW) {
+    count++;
+    Serial.print("Count = ");
+    Serial.println(count);
+  }
+  lastState = state;
+  delay(1000);                    // งานอื่นที่ใช้เวลานาน
+}
+`,
+      text: "กด “รันต่อเนื่อง” แล้วกดปุ่มสั้น ๆ 5 ครั้ง เว้นระยะพอสมควร เทียบจำนวนครั้งที่กดกับค่า count ในตาราง",
+      q: "คำถาม: นับได้ครบทุกครั้งหรือไม่ การกดแบบใดที่ถูกพลาด เพราะอะไร" },
+    { title: "ใช้อินเทอร์รัปต์ที่ขา 2", speed: 10, realtime: 1, code: `// ตัวอย่างที่ 3.8 นับชิ้นงานด้วยอินเทอร์รัปต์ที่ขา 2
+const int SENSOR_PIN = 2;          // ปุ่มกดแทนสวิตช์ตรวจชิ้นงาน
+volatile byte count = 0;          // ตัวแปรที่ ISR แก้ไข ต้องเป็น volatile
+byte lastShown = 0;                // ค่าที่แสดงครั้งล่าสุด
+
+void countISR() {                  // ISR: สั้นที่สุด ไม่มี delay และไม่มี Serial
+  count++;
+}
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(SENSOR_PIN, INPUT_PULLUP);
+  // กดปุ่ม = สัญญาณเปลี่ยนจาก HIGH เป็น LOW (ขอบขาลง)
+  attachInterrupt(digitalPinToInterrupt(SENSOR_PIN), countISR, FALLING);
+}
+
+void loop() {
+  if (count != lastShown) {        // แสดงผลเฉพาะเมื่อค่าเปลี่ยน
+    lastShown = count;
+    Serial.print("Count = ");
+    Serial.println(lastShown);
+  }
+  // งานอื่นของระบบทำต่อได้ตามปกติ การนับไม่พลาดแม้ loop ทำงานช้า
+  delay(1000);
+}
+`,
+      text: "ทำเหมือนภารกิจ 1 จากนั้นลองกด “หยุด” แล้วเดินทีละบรรทัด กดปุ่มระหว่างนั้น ดูว่าแถบสีเหลืองไปอยู่ที่ไหนในขั้นถัดไป",
+      q: "คำถาม: นับได้ครบหรือไม่ เมื่อเกิดอินเทอร์รัปต์ Arduino ทำอะไร และกลับไปทำต่อที่บรรทัดไหน" },
+    { title: "อินเทอร์รัปต์กับปุ่มที่เด้ง", speed: 10, realtime: 1, bounce: true, code: `// ตัวอย่างที่ 3.8 นับชิ้นงานด้วยอินเทอร์รัปต์ที่ขา 2
+const int SENSOR_PIN = 2;          // ปุ่มกดแทนสวิตช์ตรวจชิ้นงาน
+volatile byte count = 0;          // ตัวแปรที่ ISR แก้ไข ต้องเป็น volatile
+byte lastShown = 0;                // ค่าที่แสดงครั้งล่าสุด
+
+void countISR() {                  // ISR: สั้นที่สุด ไม่มี delay และไม่มี Serial
+  count++;
+}
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(SENSOR_PIN, INPUT_PULLUP);
+  // กดปุ่ม = สัญญาณเปลี่ยนจาก HIGH เป็น LOW (ขอบขาลง)
+  attachInterrupt(digitalPinToInterrupt(SENSOR_PIN), countISR, FALLING);
+}
+
+void loop() {
+  if (count != lastShown) {        // แสดงผลเฉพาะเมื่อค่าเปลี่ยน
+    lastShown = count;
+    Serial.print("Count = ");
+    Serial.println(lastShown);
+  }
+  // งานอื่นของระบบทำต่อได้ตามปกติ การนับไม่พลาดแม้ loop ทำงานช้า
+  delay(1000);
+}
+`,
+      text: "ปุ่มในภารกิจนี้เด้งเหมือนปุ่มจริง กด “รันต่อเนื่อง” แล้วกดปุ่ม 3 ครั้ง",
+      q: "คำถาม: กด 1 ครั้งนับเพิ่มกี่ครั้ง ทำไมอินเทอร์รัปต์จึงไวต่อการเด้งมากกว่าการอ่านใน loop()" },
+  ],
+});
+</script>
+</body>
+</html>

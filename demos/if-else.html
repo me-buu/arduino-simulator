@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>คำสั่ง if / else: ตัวจำลอง Arduino</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../engine/arduino-sim.css">
+</head>
+<body>
+<div id="app"></div>
+<script src="../engine/arduino-core.js"></script>
+<script src="../engine/arduino-sim.js"></script>
+<script>
+ArduinoSim.mount({
+  title: "คำสั่ง if / else if / else",
+  back: "../index.html",
+  lede: "บทที่ 2 หัวข้อ 2.5.4 ไฟเตือนอุณหภูมิ 3 สี โปรแกรมตรวจเงื่อนไขจากบนลงล่าง และทำเฉพาะกิ่งแรกที่เป็นจริง",
+  board: [
+    { type: "pot", pin: "A0", label: "อุณหภูมิ", min: 0, max: 100, unit: "°C", init: 70 },
+    { type: "led", pin: 10, color: "green", label: "ไฟเขียว: ปกติ" },
+    { type: "led", pin: 9, color: "yellow", label: "ไฟเหลือง: อุ่น" },
+    { type: "led", pin: 8, color: "red", label: "ไฟแดง: ร้อนเกิน" },
+  ],
+  trace: {
+    title: "ตารางติดตามค่า (เพิ่มแถวเมื่อผลเปลี่ยน)",
+    at: "loopEnd", dedupe: true,
+    empty: "ยังไม่จบรอบแรกของ loop()",
+    cols: [{ label: "รอบที่", iter: true }, { label: "temp", var: "temp" }, { label: "ไฟเขียว", pin: 10 }, { label: "ไฟเหลือง", pin: 9 }, { label: "ไฟแดง", pin: 8 }],
+  },
+  missions: [
+    { title: "ไฟเตือน 3 ระดับ", predict: true, speed: 8, code: `const int RED = 8;
+const int YELLOW = 9;
+const int GREEN = 10;
+
+void setup() {
+  pinMode(RED, OUTPUT);
+  pinMode(YELLOW, OUTPUT);
+  pinMode(GREEN, OUTPUT);
+}
+
+void loop() {
+  // อ่านอุณหภูมิ 0 ถึง 100 °C จากเซนเซอร์ที่ขา A0
+  int temp = map(analogRead(A0), 0, 1023, 0, 100);
+
+  if (temp > 80) {
+    digitalWrite(RED, HIGH);      // ร้อนเกิน
+    digitalWrite(YELLOW, LOW);
+    digitalWrite(GREEN, LOW);
+  } else if (temp > 60) {
+    digitalWrite(RED, LOW);
+    digitalWrite(YELLOW, HIGH);   // อุ่น
+    digitalWrite(GREEN, LOW);
+  } else {
+    digitalWrite(RED, LOW);
+    digitalWrite(YELLOW, LOW);
+    digitalWrite(GREEN, HIGH);    // ปกติ
+  }
+}
+`, inputs: { 0: 70 },
+      text: "อุณหภูมิตั้งไว้ 70 °C กด “ทำบรรทัดถัดไป” จนจบรอบ loop() ก่อนตรวจแต่ละเงื่อนไข ตัวจำลองจะให้ทำนายว่าจริงหรือเท็จ",
+      q: "คำถาม: ไฟดวงไหนติด โปรแกรมตรวจเงื่อนไขกี่ข้อ และทำไมไม่ตรวจข้อที่เหลือ" },
+    { title: "ค่าบนขอบของเงื่อนไข", predict: false, speed: 10, code: `const int RED = 8;
+const int YELLOW = 9;
+const int GREEN = 10;
+
+void setup() {
+  pinMode(RED, OUTPUT);
+  pinMode(YELLOW, OUTPUT);
+  pinMode(GREEN, OUTPUT);
+}
+
+void loop() {
+  // อ่านอุณหภูมิ 0 ถึง 100 °C จากเซนเซอร์ที่ขา A0
+  int temp = map(analogRead(A0), 0, 1023, 0, 100);
+
+  if (temp > 80) {
+    digitalWrite(RED, HIGH);      // ร้อนเกิน
+    digitalWrite(YELLOW, LOW);
+    digitalWrite(GREEN, LOW);
+  } else if (temp > 60) {
+    digitalWrite(RED, LOW);
+    digitalWrite(YELLOW, HIGH);   // อุ่น
+    digitalWrite(GREEN, LOW);
+  } else {
+    digitalWrite(RED, LOW);
+    digitalWrite(YELLOW, LOW);
+    digitalWrite(GREEN, HIGH);    // ปกติ
+  }
+}
+`, inputs: { 0: 50 },
+      text: "กด “รันต่อเนื่อง” แล้วเลื่อนอุณหภูมิไปที่ 60, 61, 80 และ 81 °C ทีละค่า ดูไฟบนบอร์ดและตาราง",
+      q: "คำถาม: ที่ 60 °C และ 80 °C พอดี ไฟสีอะไรติด เพราะอะไร ถ้าต้องการให้ 80 °C เป็นไฟแดง ต้องแก้เครื่องหมายใด" },
+    { title: "สลับลำดับเงื่อนไข (มีจุดผิด)", predict: true, editable: true, speed: 10, code: `const int RED = 8;
+const int YELLOW = 9;
+const int GREEN = 10;
+
+void setup() {
+  pinMode(RED, OUTPUT);
+  pinMode(YELLOW, OUTPUT);
+  pinMode(GREEN, OUTPUT);
+}
+
+void loop() {
+  // อ่านอุณหภูมิ 0 ถึง 100 °C จากเซนเซอร์ที่ขา A0
+  int temp = map(analogRead(A0), 0, 1023, 0, 100);
+
+  if (temp > 60) {
+    digitalWrite(RED, LOW);
+    digitalWrite(YELLOW, HIGH);   // อุ่น
+    digitalWrite(GREEN, LOW);
+  } else if (temp > 80) {
+    digitalWrite(RED, HIGH);      // ร้อนเกิน
+    digitalWrite(YELLOW, LOW);
+    digitalWrite(GREEN, LOW);
+  } else {
+    digitalWrite(RED, LOW);
+    digitalWrite(YELLOW, LOW);
+    digitalWrite(GREEN, HIGH);    // ปกติ
+  }
+}
+`, inputs: { 0: 90 },
+      text: "โค้ดนี้สลับลำดับของสองเงื่อนไขแรก อุณหภูมิตั้งไว้ 90 °C ทำนายว่าไฟดวงไหนจะติด แล้วเดินโค้ดเพื่อตรวจ",
+      q: "คำถาม: ทำไมไฟแดงไม่มีวันติดไม่ว่าจะร้อนเท่าใด กด “แก้โค้ด” แล้วแก้ให้ถูก" },
+  ],
+});
+</script>
+</body>
+</html>

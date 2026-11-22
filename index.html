@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ตัวจำลอง Arduino สำหรับการสอน</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="engine/arduino-sim.css">
+<style>
+.hx { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
+header.hero { padding: 40px 0 34px; border-bottom: 1px solid var(--line);
+  background-image: repeating-linear-gradient(90deg, transparent 0 39px, color-mix(in srgb, var(--line) 45%, transparent) 39px 40px); }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 36px; align-items: center; }
+@media (max-width: 860px) { .hero-grid { grid-template-columns: 1fr; } }
+.nw { white-space: nowrap; }
+.kicker { color: var(--pcb); font-weight: 600; margin: 0 0 6px; }
+.hero h1 { font-size: clamp(2rem, 4.2vw, 3.1rem); line-height: 1.12; margin: 0 0 14px; font-weight: 800; }
+.hero p.lead { font-size: 1.12rem; color: var(--muted); max-width: 46ch; margin: 0 0 22px; }
+.cta { display: flex; flex-wrap: wrap; gap: 10px; }
+.cta a { text-decoration: none; padding: 10px 18px; border-radius: 8px; font-weight: 600; border: 1px solid var(--accent); }
+.cta a.go { background: var(--accent); color: var(--accent-ink); }
+.cta a.alt { color: var(--accent); background: var(--panel); }
+.cta a:focus-visible { outline: 3px solid var(--mark-edge); outline-offset: 2px; }
+
+/* บอร์ดตัวอย่างในส่วนหัว */
+.demo-board { background: var(--pcb); border-radius: 14px; padding: 18px; color: var(--pcb-ink); position: relative; box-shadow: 0 18px 40px -24px rgba(10, 30, 22, .6); }
+.demo-board::after { content: ""; position: absolute; inset: 9px; border: 1px dashed color-mix(in srgb, var(--pcb-ink) 25%, transparent); border-radius: 9px; pointer-events: none; }
+.demo-code { background: var(--code-bg); color: var(--ink); border-radius: 8px; padding: 10px 0; font-family: "IBM Plex Mono", monospace; font-size: .95rem; position: relative; z-index: 1; }
+.demo-code div { padding: 2px 14px 2px 10px; border-left: 4px solid transparent; white-space: pre; }
+.demo-code div.on { background: var(--mark); border-left-color: var(--mark-edge); }
+.demo-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 14px; position: relative; z-index: 1; }
+.demo-led { display: flex; align-items: center; gap: 12px; }
+.demo-led i { width: 34px; height: 34px; border-radius: 50% 50% 44% 44%; background: #5B4B12; border: 3px solid rgba(0,0,0,.45); transition: background .1s, box-shadow .1s; }
+.demo-led i.lit { background: #FFD21F; box-shadow: 0 0 20px 6px rgba(255, 210, 31, .55); }
+.demo-note { font-size: .92rem; color: var(--pcb-dim); }
+.demo-note b { color: var(--pcb-ink); font-family: "IBM Plex Mono", monospace; font-weight: 600; }
+
+/* ขั้นตอนการเรียน */
+.how { padding: 30px 0 6px; }
+.how ol { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; counter-reset: s; }
+@media (max-width: 760px) { .how ol { grid-template-columns: 1fr; } }
+.how li { counter-increment: s; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px 14px 58px; position: relative; }
+.how li::before { content: counter(s); position: absolute; left: 16px; top: 13px; width: 30px; height: 30px; border-radius: 50%; background: var(--pcb); color: var(--pcb-ink); display: grid; place-items: center; font-weight: 700; }
+.how li b { display: block; }
+.how li span { color: var(--muted); font-size: .95rem; }
+
+/* บท */
+.chap { padding: 30px 0 4px; }
+.chap h2 { font-size: 1.35rem; margin: 0 0 4px; }
+.chap .sub { color: var(--muted); margin: 0 0 14px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+.card { display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; color: var(--ink); text-decoration: none; transition: border-color .12s, transform .12s; }
+a.card:hover { border-color: var(--accent); transform: translateY(-2px); }
+a.card:focus-visible { outline: 3px solid var(--mark-edge); outline-offset: 2px; }
+.card code { display: block; background: var(--code-bg); border-bottom: 1px solid var(--line); padding: 12px 14px; font-family: "IBM Plex Mono", monospace; font-size: .86rem; white-space: pre; overflow: hidden; text-overflow: ellipsis; color: var(--ink); }
+.card .body { padding: 12px 14px 14px; flex: 1; display: flex; flex-direction: column; }
+.card b { font-size: 1.06rem; }
+.card p { margin: 4px 0 10px; color: var(--muted); font-size: .95rem; flex: 1; }
+.card .meta { font-size: .85rem; color: var(--pcb); font-weight: 600; }
+.card.soon { opacity: .62; border-style: dashed; }
+.card.soon .meta { color: var(--muted); }
+
+/* สำหรับอาจารย์ */
+.teach { margin: 34px 0 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px; }
+@media (max-width: 760px) { .teach { grid-template-columns: 1fr; } }
+.teach h2 { font-size: 1.2rem; margin: 0 0 8px; }
+.teach p, .teach li { max-width: 60ch; }
+.teach ul { padding-left: 1.2em; margin: 6px 0 0; }
+footer.site { color: var(--muted); font-size: .9rem; padding: 18px 20px 34px; }
+footer.site p { margin: 0 0 4px; }
+@media (prefers-reduced-motion: reduce) { .demo-led i, a.card { transition: none; } a.card:hover { transform: none; } }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hx hero-grid">
+    <div>
+      <p class="kicker">วิชา 50335264 อิเล็กทรอนิกส์และระบบสมองกลฝังตัว</p>
+      <h1>เห็นโค้ด Arduino ทำงาน<span class="nw">ทีละบรรทัด</span></h1>
+      <p class="lead">ทำนายก่อนว่าโค้ดจะทำอะไร แล้วเดินโค้ดดูค่าตัวแปร สถานะขา และไฟบนบอร์ดเสมือนไปพร้อมกัน ผลการคำนวณตรงกับบอร์ด Arduino Uno จริง</p>
+      <div class="cta"><a class="go" href="#ch2">เริ่มที่บทที่ 2</a><a class="alt" href="#teach">สำหรับอาจารย์</a></div>
+    </div>
+    <div class="demo-board" aria-label="ตัวอย่าง: โปรแกรม Blink ทำงานทีละบรรทัด">
+      <div class="demo-code" id="dc">
+        <div><span class="k">void</span> <span class="f">loop</span>() {</div>
+        <div>  <span class="f">digitalWrite</span>(<span class="n">13</span>, <span class="k">HIGH</span>);</div>
+        <div>  <span class="f">delay</span>(<span class="n">500</span>);</div>
+        <div>  <span class="f">digitalWrite</span>(<span class="n">13</span>, <span class="k">LOW</span>);</div>
+        <div>  <span class="f">delay</span>(<span class="n">500</span>);</div>
+        <div>}</div>
+      </div>
+      <div class="demo-row">
+        <div class="demo-led"><i id="dl"></i><span class="demo-note">ขา 13 <b id="dv">LOW</b></span></div>
+        <span class="demo-note">เวลาจำลอง <b id="dt">0 ms</b></span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="hx">
+  <section class="how" aria-label="วิธีเรียน">
+    <ol>
+      <li><b>ทำนาย</b><span>อ่านโค้ดแล้วเดาว่าเงื่อนไขจะจริงหรือเท็จ หรือตัวแปรจะได้ค่าเท่าใด</span></li>
+      <li><b>เดินโค้ด</b><span>กดทีละบรรทัด ดูแถบสีเหลือง ค่าในหน่วยความจำ และตารางติดตามค่า</span></li>
+      <li><b>แก้แล้วลองใหม่</b><span>ภารกิจสุดท้ายของทุกตัวจำลองให้แก้โค้ดเองแล้วตรวจผล</span></li>
+    </ol>
+  </section>
+
+  <section class="chap" id="ch2">
+    <h2>บทที่ 2 ไมโครคอนโทรลเลอร์และการเขียนโปรแกรม Arduino</h2>
+    <p class="sub">ใช้ได้ตั้งแต่ครั้งที่ 2 ไม่ต้องต่อวงจร</p>
+    <div class="cards">
+      <a class="card" href="demos/setup-loop.html"><code><span class="k">void</span> <span class="f">loop</span>() { count++; }</code><div class="body"><b>setup() และ loop()</b><p>อะไรทำครั้งเดียว อะไรทำซ้ำ และตัวแปรที่ประกาศใน loop() หายไปเมื่อใด</p><span class="meta">3 ภารกิจ</span></div></a>
+      <a class="card" href="demos/division.html"><code><span class="k">float</span> f1 = a / b;</code><div class="body"><b>ตัวแปรและการหาร</b><p>หารจำนวนเต็มตัดเศษ และ int 16 บิตที่ล้นเมื่อคูณเลขใหญ่</p><span class="meta">3 ภารกิจ ทำนายค่าตัวแปร</span></div></a>
+      <a class="card" href="demos/and-or.html"><code><span class="k">if</span> (a &amp;&amp; b) { ... }</code><div class="body"><b>ตัวดำเนินการ &amp;&amp; และ ||</b><p>สร้างตารางความจริงด้วยสวิตช์ 2 ตัว และดูว่าเมื่อใดไม่ต้องคำนวณด้านขวา</p><span class="meta">3 ภารกิจ บอร์ดเสมือน</span></div></a>
+      <a class="card" href="demos/if-else.html"><code><span class="k">else if</span> (temp &gt; <span class="n">60</span>)</code><div class="body"><b>คำสั่ง if / else if / else</b><p>ไฟเตือนอุณหภูมิ 3 สี ค่าบนขอบเงื่อนไข และลำดับของเงื่อนไขที่ผิด</p><span class="meta">3 ภารกิจ บอร์ดเสมือน</span></div></a>
+      <a class="card" href="demos/for-loop.html"><code><span class="k">for</span> (<span class="k">int</span> i = <span class="n">1</span>; i &lt;= <span class="n">4</span>; i++)</code><div class="body"><b>คำสั่งวนซ้ำ for</b><p>ค่าเริ่มต้น การตรวจเงื่อนไข และการเปลี่ยนค่าในแต่ละรอบ</p><span class="meta">3 ภารกิจ ทำนายเงื่อนไข</span></div></a>
+      <a class="card" href="demos/while-loop.html"><code><span class="k">while</span> (level &lt; <span class="n">20</span>)</code><div class="body"><b>คำสั่งวนซ้ำ while</b><p>เติมน้ำจนถึงระดับที่ต้องการ และลูปที่ไม่มีวันจบ</p><span class="meta">3 ภารกิจ ทำนายเงื่อนไข</span></div></a>
+    </div>
+  </section>
+
+  <section class="chap" id="ch3">
+    <h2>บทที่ 3 สัญญาณดิจิทัล</h2>
+    <p class="sub">มีบอร์ดเสมือน ปุ่มกด และกราฟสัญญาณ</p>
+    <div class="cards">
+      <a class="card" href="demos/blink.html"><code><span class="f">digitalWrite</span>(<span class="k">LED_BUILTIN</span>, <span class="k">HIGH</span>);</code><div class="body"><b>digitalWrite และ delay</b><p>กราฟสัญญาณที่ขาตามเวลาของโปรแกรม Blink และ delay ที่หายไป</p><span class="meta">3 ภารกิจ กราฟสัญญาณ</span></div></a>
+      <a class="card" href="demos/digital-read.html"><code><span class="f">pinMode</span>(<span class="n">7</span>, <span class="k">INPUT_PULLUP</span>);</code><div class="body"><b>digitalRead และ pull-up</b><p>INPUT เทียบกับ INPUT_PULLUP และขาที่ปล่อยลอยจนอ่านค่าสุ่ม</p><span class="meta">3 ภารกิจ ทำนายค่าที่อ่านได้</span></div></a>
+      <a class="card" href="demos/toggle.html"><code>lastState == <span class="k">HIGH</span> &amp;&amp; state == <span class="k">LOW</span></code><div class="body"><b>กดติดกดดับ</b><p>จำสถานะปุ่มรอบก่อน และปัญหาการเด้งของปุ่มจริง</p><span class="meta">4 ภารกิจ ใช้หลังทำแบบฝึกหัดข้อ 4</span></div></a>
+      <a class="card" href="demos/interrupt.html"><code><span class="f">attachInterrupt</span>(..., countISR, <span class="k">FALLING</span>);</code><div class="body"><b>อินเทอร์รัปต์</b><p>นับชิ้นงานด้วยการอ่านใน loop() เทียบกับ ISR และผลของการเด้ง</p><span class="meta">3 ภารกิจ เวลาจริง</span></div></a>
+    </div>
+  </section>
+
+  <section class="chap" id="ch4">
+    <h2>บทที่ 4 สัญญาณอนาล็อก</h2>
+    <p class="sub">มี potentiometer และ photoresistor ที่เห็นความต้านทาน แรงดัน และค่า ADC พร้อมกัน</p>
+    <div class="cards">
+      <a class="card" href="demos/analog-read.html"><code><span class="k">float</span> volt = adc * <span class="n">5.0</span> / <span class="n">1023.0</span>;</code><div class="body"><b>analogRead และวงจรแบ่งแรงดัน</b><p>จากแรงดันเป็นค่า ADC การลืมใส่ .0 และตำแหน่งของ photoresistor</p><span class="meta">4 ภารกิจ ทำนายค่าตัวแปร</span></div></a>
+      <a class="card" href="demos/hysteresis.html"><code><span class="k">if</span> (light &lt; ON_LEVEL)</code><div class="body"><b>ไฟอัตโนมัติและฮิสเทอรีซิส</b><p>สัญญาณรบกวนทำให้ไฟกะพริบ และช่วงคงสถานะที่แก้ปัญหานี้</p><span class="meta">3 ภารกิจ สัญญาณรบกวน</span></div></a>
+    </div>
+  </section>
+
+  <section class="chap" id="ch5">
+    <h2>บทที่ 5 เซนเซอร์</h2>
+    <p class="sub">เซนเซอร์อัลตราโซนิกและเซนเซอร์อุณหภูมิ</p>
+    <div class="cards">
+      <a class="card" href="demos/sensors.html"><code><span class="f">pulseIn</span>(ECHO_PIN, <span class="k">HIGH</span>, <span class="n">30000</span>)</code><div class="body"><b>อัลตราโซนิกและ TMP36</b><p>เวลาที่เสียงเดินทางไปกลับ กรณีไม่พบวัตถุ และความละเอียดของการวัดอุณหภูมิ</p><span class="meta">3 ภารกิจ</span></div></a>
+    </div>
+  </section>
+
+  <section class="chap" id="ch8">
+    <h2>บทที่ 8 แอคชูเอเตอร์</h2>
+    <p class="sub">กำลังพัฒนา</p>
+    <div class="cards">
+      <div class="card soon"><code><span class="f">analogWrite</span>(<span class="n">9</span>, <span class="n">128</span>);</code><div class="body"><b>analogWrite (PWM)</b><p>ค่า 0–255 รูปคลื่น ค่าเฉลี่ยแรงดัน และความสว่างของ LED</p><span class="meta">กำลังพัฒนา</span></div></div>
+    </div>
+  </section>
+
+  <section class="teach" id="teach" aria-label="สำหรับอาจารย์">
+    <div>
+      <h2>สำหรับอาจารย์</h2>
+      <p>ตัวจำลองทุกตัวใช้ตัวแปลภาษา Arduino ตัวเดียวกัน ผลการคำนวณถูกทดสอบเทียบกับไมโครคอนโทรลเลอร์ ATmega328P จริงแล้วทุกบรรทัด ตัวจำลองแต่ละตัวมีเฉพาะโค้ด อุปกรณ์บนบอร์ด และภารกิจ จึงเพิ่มตัวใหม่ได้โดยไม่ต้องเขียนโปรแกรมส่วนอื่น</p>
+      <p>อาจารย์วิชาอื่นที่ต้องการฝากตัวจำลองของวิชาตนเองไว้ที่นี่ ติดต่อผู้ดูแลได้ทาง GitHub วิธีเพิ่มตัวจำลองอยู่ในไฟล์ README.md</p>
+    </div>
+    <div>
+      <h2>หลักการออกแบบ</h2>
+      <ul>
+        <li>เปิดหน้ามาแล้วรันภารกิจ 1 ได้ทันที ไม่มีตัวเลือกให้ปรับ</li>
+        <li>ทุกภารกิจมีคำถาม 1 ข้อ และให้ทำนายก่อนดูผล</li>
+        <li>ใช้ในคาบไม่เกิน 10 นาที บนโน้ตบุ๊กหรือ iPad</li>
+        <li>ไม่ได้ใช้แทน Tinkercad แต่แสดงสิ่งที่ Tinkercad มองไม่เห็น</li>
+      </ul>
+    </div>
+  </section>
+</main>
+<footer class="hx site">
+  <p>คณะวิศวกรรมศาสตร์ มหาวิทยาลัยบูรพา</p>
+  <p>โค้ดเผยแพร่ภายใต้สัญญาอนุญาต MIT เนื้อหาและภารกิจเผยแพร่ภายใต้ CC BY 4.0 นำไปใช้และดัดแปลงได้โดยระบุที่มา</p>
+</footer>
+<script>
+// บอร์ดตัวอย่าง: เดินโปรแกรม Blink ทีละบรรทัด
+(function () {
+  const rows = document.querySelectorAll("#dc div"), led = document.getElementById("dl"), dv = document.getElementById("dv"), dt = document.getElementById("dt");
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let i = 1, t = 0, on = false;
+  function show() {
+    rows.forEach((r, j) => r.classList.toggle("on", j === i));
+    led.classList.toggle("lit", on); dv.textContent = on ? "HIGH" : "LOW"; dt.textContent = t + " ms";
+  }
+  function tick() {
+    if (i === 1) on = true; else if (i === 3) on = false; else t += 500;
+    i = i >= 4 ? 1 : i + 1;
+    show();
+  }
+  show();
+  if (!reduce) setInterval(tick, 850);
+})();
+</script>
+</body>
+</html>

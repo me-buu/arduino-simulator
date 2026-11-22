@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>เซนเซอร์: Arduino Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../engine/arduino-sim.css">
+</head>
+<body>
+<div id="app"></div>
+<script src="../engine/arduino-core.js"></script>
+<script src="../engine/arduino-sim.js"></script>
+<script>
+ArduinoSim.mount({
+  title: "เซนเซอร์อัลตราโซนิกและ TMP36",
+  back: "../index.html",
+  lede: "บทที่ 5 หัวข้อ 5.2 และ 5.3 เซนเซอร์อัลตราโซนิกให้ความกว้างพัลส์ที่วัดด้วย pulseIn() ส่วน TMP36 ให้แรงดันที่อ่านด้วย analogRead()",
+  serial: true,
+  board: [
+    { type: "ultrasonic", trig: 6, echo: 7, pin: 7, label: "ระยะถึงวัตถุ (HC-SR04)", init: 100 },
+    { type: "tmp36", pin: "A2", label: "อุณหภูมิ (TMP36)", init: 25 },
+    { type: "led", pin: 8, color: "red", label: "ไฟแดง" },
+    { type: "led", pin: 9, color: "yellow", label: "ไฟเหลือง" },
+    { type: "led", pin: 10, color: "green", label: "ไฟเขียว" },
+  ],
+  trace: { title: "ตารางติดตามค่า (หนึ่งแถวต่อ loop() หนึ่งรอบ)", at: "loopEnd", empty: "ยังไม่จบรอบแรกของ loop()",
+    cols: [{ label: "รอบที่", iter: true }, { label: "d", var: "d" }, { label: "t", var: "t" }, { label: "แดง", pin: 8 }, { label: "เหลือง", pin: 9 }, { label: "เขียว", pin: 10 }] },
+  missions: [
+    { title: "วัดระยะด้วย pulseIn()", speed: 10, realtime: 1, code: `// ตัวอย่างที่ 5.1 วัดระยะทางด้วยเซนเซอร์อัลตราโซนิก HC-SR04
+const int TRIG_PIN = 6;
+const int ECHO_PIN = 7;
+
+// ส่งพัลส์กระตุ้นแล้วคืนค่าระยะทาง (cm) ถ้าไม่มีเสียงสะท้อนจะคืนค่า 0
+float readDistanceCm() {
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH);          // พัลส์กระตุ้นกว้าง 10 µs
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+  // เวลาที่ขา Echo เป็น HIGH (µs) รอไม่เกิน 30000 µs
+  unsigned long t = pulseIn(ECHO_PIN, HIGH, 30000);
+  return t * 0.0343 / 2.0;               // เสียงเดินทาง 0.0343 cm/µs หาร 2 เพราะไปและกลับ
+}
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+}
+
+void loop() {
+  float d = readDistanceCm();
+  if (d == 0) {
+    Serial.println("No echo");           // ไม่พบวัตถุในระยะ
+  } else {
+    Serial.print("Distance = ");
+    Serial.print(d);
+    Serial.println(" cm");
+  }
+  delay(500);
+}
+`,
+      text: "วัตถุอยู่ห่าง 100 cm กด “ทำบรรทัดถัดไป” จนผ่านบรรทัด pulseIn() ดูเวลาที่วัดได้ในป้ายท้ายบรรทัด แล้วคำนวณระยะเองด้วยสมการ (5.1) ก่อนดูผลใน Serial Monitor",
+      q: "คำถาม: pulseIn() วัดได้กี่ไมโครวินาที คำนวณได้ระยะเท่าใด ถ้าเลื่อนวัตถุเกิน 400 cm โปรแกรมพิมพ์อะไร เพราะอะไร" },
+    { title: "ไฟเตือนระยะ 3 สี (มีจุดผิด)", speed: 10, realtime: 1, editable: true, code: `const int TRIG_PIN = 6;
+const int ECHO_PIN = 7;
+const int RED_PIN = 8;
+const int YELLOW_PIN = 9;
+const int GREEN_PIN = 10;
+
+float readDistanceCm() {
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+  unsigned long t = pulseIn(ECHO_PIN, HIGH, 30000);
+  return t * 0.0343 / 2.0;
+}
+
+void setup() {
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+  pinMode(RED_PIN, OUTPUT);
+  pinMode(YELLOW_PIN, OUTPUT);
+  pinMode(GREEN_PIN, OUTPUT);
+}
+
+void loop() {
+  float d = readDistanceCm();
+  digitalWrite(RED_PIN, d <= 15);                 // ใกล้มาก
+  digitalWrite(YELLOW_PIN, d > 15 && d <= 50);    // ระวัง
+  digitalWrite(GREEN_PIN, d > 50);                // ปลอดภัย
+  delay(200);
+}
+`,
+      text: "กด “รันต่อเนื่อง” แล้วเลื่อนวัตถุจากใกล้ไปไกล ดูไฟทั้ง 3 ดวง จากนั้นเลื่อนเกิน 400 cm",
+      q: "คำถาม: เมื่อไม่มีวัตถุ ไฟสีอะไรติด ทำไม กด “แก้โค้ด” แล้วแก้ให้ไฟเขียวติดเมื่อไม่พบวัตถุ" },
+    { title: "อ่านอุณหภูมิจาก TMP36", speed: 10, realtime: 1, predictVars: ["t"], code: `const int TMP_PIN = A2;
+
+// อ่านแรงดันจาก TMP36 แล้วแปลงเป็นองศาเซลเซียส
+float readTempC() {
+  int adc = analogRead(TMP_PIN);
+  float volt = adc * 5.0 / 1023.0;
+  return (volt - 0.5) * 100.0;
+}
+
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+  float t = readTempC();
+  Serial.println(t);
+  delay(1000);
+}
+`,
+      text: "อุณหภูมิตั้งไว้ 25 °C กด “ทำบรรทัดถัดไป” ก่อนกำหนดค่า t ตัวจำลองจะให้ทำนายค่าก่อน",
+      q: "คำถาม: ทำไมได้ 24.78 °C ไม่ใช่ 25.00 °C ความละเอียดของการวัดอุณหภูมินี้ประมาณเท่าใด" },
+  ],
+});
+</script>
+</body>
+</html>

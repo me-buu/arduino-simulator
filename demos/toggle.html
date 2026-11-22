@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>กดติดกดดับ: Arduino Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../engine/arduino-sim.css">
+</head>
+<body>
+<div id="app"></div>
+<script src="../engine/arduino-core.js"></script>
+<script src="../engine/arduino-sim.js"></script>
+<script>
+ArduinoSim.mount({
+  title: "กดติดกดดับ",
+  back: "../index.html",
+  lede: "บทที่ 3 แบบฝึกหัดข้อ 4 กดปุ่มครั้งแรก LED ติด กดอีกครั้ง LED ดับ โปรแกรมต้องจำสถานะปุ่มของรอบก่อน เพื่อหาจังหวะที่เพิ่งกดลง",
+  board: [{ type: "button", pin: 7, label: "ปุ่มกด" }, { type: "led", pin: 8, color: "red", label: "LED" }],
+  trace: { title: "ตารางติดตามค่า (หนึ่งแถวต่อ loop() หนึ่งรอบ)", at: "loopEnd", empty: "ยังไม่จบรอบแรกของ loop()",
+    cols: [{ label: "รอบที่", iter: true }, { label: "ปุ่ม", widget: 0 }, { label: "state", var: "state" }, { label: "lastState ท้ายรอบ", var: "lastState" }, { label: "ledOn", var: "ledOn" }, { label: "LED", pin: 8 }] },
+  missions: [
+    { title: "จำสถานะปุ่มรอบก่อน", predict: true, speed: 8, code: `const int BUTTON_PIN = 7;
+const int LED_PIN = 8;
+bool ledOn = false;               // สถานะของ LED
+int lastState = HIGH;             // สถานะปุ่มรอบก่อน
+
+void setup() {
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  pinMode(LED_PIN, OUTPUT);
+}
+
+void loop() {
+  int state = digitalRead(BUTTON_PIN);
+  if (lastState == HIGH && state == LOW) {   // เพิ่งกดลง
+    ledOn = !ledOn;               // สลับสถานะ
+    digitalWrite(LED_PIN, ledOn);
+  }
+  lastState = state;              // จำไว้ใช้รอบหน้า
+}
+`,
+      text: "ติ๊ก “ค้างปุ่มไว้” แล้วกด “ทำจนจบรอบ loop()” 5 ครั้ง ก่อนถึงคำสั่ง if ทุกครั้ง ตัวจำลองจะให้ทำนายว่าเงื่อนไขเป็นจริงหรือเท็จ",
+      q: "คำถาม: กดปุ่มค้างไว้ 5 รอบ LED สลับกี่ครั้ง เพราะอะไร" },
+    { title: "ไม่จำสถานะ (มีจุดผิด)", speed: 8, code: `const int BUTTON_PIN = 7;
+const int LED_PIN = 8;
+bool ledOn = false;               // สถานะของ LED
+int lastState = HIGH;             // สถานะปุ่มรอบก่อน
+
+void setup() {
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  pinMode(LED_PIN, OUTPUT);
+}
+
+void loop() {
+  int state = digitalRead(BUTTON_PIN);
+  if (state == LOW) {                        // กดอยู่หรือไม่
+    ledOn = !ledOn;               // สลับสถานะ
+    digitalWrite(LED_PIN, ledOn);
+  }
+  lastState = state;              // จำไว้ใช้รอบหน้า
+}
+`,
+      text: "ทำเหมือนภารกิจ 1 คือติ๊ก “ค้างปุ่มไว้” แล้วกด “ทำจนจบรอบ loop()” 5 ครั้ง ดูคอลัมน์ ledOn ในตาราง",
+      q: "คำถาม: LED สลับกี่ครั้ง ต่างจากภารกิจ 1 อย่างไร" },
+    { title: "ลืมบรรทัด lastState = state; (มีจุดผิด)", speed: 8, code: `const int BUTTON_PIN = 7;
+const int LED_PIN = 8;
+bool ledOn = false;               // สถานะของ LED
+int lastState = HIGH;             // สถานะปุ่มรอบก่อน
+
+void setup() {
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  pinMode(LED_PIN, OUTPUT);
+}
+
+void loop() {
+  int state = digitalRead(BUTTON_PIN);
+  if (lastState == HIGH && state == LOW) {   // เพิ่งกดลง
+    ledOn = !ledOn;               // สลับสถานะ
+    digitalWrite(LED_PIN, ledOn);
+  }
+}
+`,
+      text: "ติ๊ก “ค้างปุ่มไว้” แล้วกด “ทำจนจบรอบ loop()” 3 ครั้ง ดูคอลัมน์ lastState",
+      q: "คำถาม: ผลเหมือนภารกิจไหน ทำไมการลืมบรรทัดเดียวจึงทำให้โปรแกรมเหมือนไม่ได้จำสถานะเลย" },
+    { title: "ปุ่มจริงที่มีการเด้ง", speed: 12, bounce: true, code: `const int BUTTON_PIN = 7;
+const int LED_PIN = 8;
+bool ledOn = false;               // สถานะของ LED
+int lastState = HIGH;             // สถานะปุ่มรอบก่อน
+
+void setup() {
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  pinMode(LED_PIN, OUTPUT);
+}
+
+void loop() {
+  int state = digitalRead(BUTTON_PIN);
+  if (lastState == HIGH && state == LOW) {   // เพิ่งกดลง
+    ledOn = !ledOn;               // สลับสถานะ
+    digitalWrite(LED_PIN, ledOn);
+  }
+  lastState = state;              // จำไว้ใช้รอบหน้า
+}
+`,
+      text: "กด “รันต่อเนื่อง” แล้วกดปุ่มบนบอร์ด 1 ครั้งแล้วปล่อย ทำซ้ำ 3–4 ครั้ง ดูจำนวนครั้งที่กดใต้ปุ่ม และคอลัมน์ ledOn ในตาราง",
+      q: "คำถาม: กด 1 ครั้ง LED สลับกี่ครั้ง สถานะสุดท้ายของ LED แน่นอนหรือไม่ (วิธีแก้อยู่ในบทที่ 6)" },
+  ],
+});
+</script>
+</body>
+</html>

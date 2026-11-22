@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ตัวดำเนินการ && และ ||: ตัวจำลอง Arduino</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../engine/arduino-sim.css">
+</head>
+<body>
+<div id="app"></div>
+<script src="../engine/arduino-core.js"></script>
+<script src="../engine/arduino-sim.js"></script>
+<script>
+ArduinoSim.mount({
+  title: "ตัวดำเนินการ && และ ||",
+  back: "../index.html",
+  lede: "บทที่ 2 หัวข้อ 2.5.3 และบทที่ 3 หัวข้อ 3.6 สร้างตารางความจริงด้วยสวิตช์เลื่อน 2 ตัว และดูว่า Arduino ข้ามการคำนวณด้านขวาเมื่อรู้ผลแล้ว",
+  board: [
+    { type: "slide", pin: 6, label: "สวิตช์ A", on: "เปิด", off: "ปิด" },
+    { type: "slide", pin: 7, label: "สวิตช์ B", on: "เปิด", off: "ปิด" },
+    { type: "led", pin: 8, color: "green", label: "LED" },
+  ],
+  trace: {
+    title: "ตารางความจริง (เพิ่มแถวเมื่อค่าเปลี่ยน)",
+    at: "loopEnd", dedupe: true,
+    empty: "ยังไม่จบรอบแรกของ loop()",
+    cols: [{ label: "a", var: "a" }, { label: "b", var: "b" }, { label: "LED (ขา 8)", pin: 8, hl: true }],
+  },
+  missions: [
+    { title: "AND: อินเตอร์ล็อกเครื่องจักร", predict: true, speed: 8, code: `const int A_PIN = 6;     // สวิตช์ A
+const int B_PIN = 7;     // สวิตช์ B
+const int LED_PIN = 8;
+
+void setup() {
+  pinMode(A_PIN, INPUT);
+  pinMode(B_PIN, INPUT);
+  pinMode(LED_PIN, OUTPUT);
+}
+
+void loop() {
+  bool a = digitalRead(A_PIN) == HIGH;
+  bool b = digitalRead(B_PIN) == HIGH;
+
+  if (a && b) {
+    digitalWrite(LED_PIN, HIGH);
+  } else {
+    digitalWrite(LED_PIN, LOW);
+  }
+}
+`, inputs: { 0: 0, 1: 0 },
+      text: "สวิตช์ A คือประตูกันภัยปิด สวิตช์ B คือสั่งเดินเครื่อง LED คือมอเตอร์ ตั้งสวิตช์ให้ครบ 4 แบบ แต่ละแบบกด “ทำจนจบรอบ loop()” ตัวจำลองจะให้ทำนายเงื่อนไขทุกครั้ง",
+      q: "คำถาม: มอเตอร์ทำงานกี่กรณีจาก 4 กรณี เมื่อ a เป็นเท็จ ทำไมป้ายท้ายบรรทัด if จึงบอกว่าด้านขวา “ไม่ต้องคำนวณ”" },
+    { title: "OR: ไฟเตือน", predict: false, speed: 10, code: `const int A_PIN = 6;     // สวิตช์ A
+const int B_PIN = 7;     // สวิตช์ B
+const int LED_PIN = 8;
+
+void setup() {
+  pinMode(A_PIN, INPUT);
+  pinMode(B_PIN, INPUT);
+  pinMode(LED_PIN, OUTPUT);
+}
+
+void loop() {
+  bool a = digitalRead(A_PIN) == HIGH;
+  bool b = digitalRead(B_PIN) == HIGH;
+
+  if (a || b) {
+    digitalWrite(LED_PIN, HIGH);
+  } else {
+    digitalWrite(LED_PIN, LOW);
+  }
+}
+`, inputs: { 0: 0, 1: 0 },
+      text: "LED คือไฟเตือนที่ติดเมื่อสวิตช์ตัวใดตัวหนึ่งเปิด กด “รันต่อเนื่อง” แล้วสลับสวิตช์ให้ครบ 4 แบบ",
+      q: "คำถาม: ตาราง OR ต่างจาก AND อย่างไร กรณีใดที่ Arduino ไม่ต้องคำนวณด้านขวาของ ||" },
+    { title: "แก้เงื่อนไขเอง", predict: false, editable: true, speed: 10, code: `const int A_PIN = 6;     // สวิตช์ A
+const int B_PIN = 7;     // สวิตช์ B
+const int LED_PIN = 8;
+
+void setup() {
+  pinMode(A_PIN, INPUT);
+  pinMode(B_PIN, INPUT);
+  pinMode(LED_PIN, OUTPUT);
+}
+
+void loop() {
+  bool a = digitalRead(A_PIN) == HIGH;
+  bool b = digitalRead(B_PIN) == HIGH;
+
+  if (a && b) {
+    digitalWrite(LED_PIN, HIGH);
+  } else {
+    digitalWrite(LED_PIN, LOW);
+  }
+}
+`, inputs: { 0: 0, 1: 0 },
+      text: "กด “แก้โค้ด” แล้วแก้เงื่อนไขให้ LED ติดเมื่อเปิดสวิตช์ตัวเดียวเท่านั้น ถ้าเปิดทั้งสองตัวหรือไม่เปิดเลย LED ต้องดับ จากนั้นรันต่อเนื่องและสลับสวิตช์ให้ครบ 4 แบบ",
+      q: "คำถาม: ตารางของคุณมี LED เป็น HIGH ในกรณีใดบ้าง ใช้ && || และ ! เขียนเงื่อนไขนี้ได้อย่างไร" },
+  ],
+});
+</script>
+</body>
+</html>

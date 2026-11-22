@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ตัวแปรและการหาร: ตัวจำลอง Arduino</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../engine/arduino-sim.css">
+</head>
+<body>
+<div id="app"></div>
+<script src="../engine/arduino-core.js"></script>
+<script src="../engine/arduino-sim.js"></script>
+<script>
+ArduinoSim.mount({
+  title: "ตัวแปรและการหาร",
+  back: "../index.html",
+  lede: "บทที่ 2 หัวข้อ 2.5.2 และ 2.5.3 ชนิดของตัวแปรกำหนดผลของการคำนวณ บน Arduino Uno ตัวแปร int มีขนาดเพียง 16 บิต และการหารจำนวนเต็มจะตัดเศษทิ้ง",
+  serial: true,
+  missions: [
+    { title: "หารจำนวนเต็มกับหารทศนิยม", predictVars: ["q", "r", "f1", "f2"], code: `void setup() {
+  Serial.begin(9600);
+  int a = 12;
+  int b = 5;
+  int q = a / b;                  // หารจำนวนเต็ม
+  int r = a % b;                  // เศษจากการหาร
+  float f1 = a / b;               // หารก่อน แล้วจึงเก็บเป็น float
+  float f2 = a / 5.0;             // มีเลขทศนิยมในการหาร
+  Serial.println(q);
+  Serial.println(r);
+  Serial.println(f1);
+  Serial.println(f2);
+}
+
+void loop() {
+}
+`,
+      text: "กด “ทำบรรทัดถัดไป” ก่อนทำแต่ละบรรทัดที่คำนวณ ตัวจำลองจะให้พิมพ์ค่าที่ทำนายไว้ แล้วจึงบอกค่าจริง",
+      q: "คำถาม: f1 กับ f2 เป็น float ทั้งคู่ ทำไมจึงได้ค่าต่างกัน" },
+    { title: "ผลคูณเกินช่วงของ int", predictVars: ["rev", "revL", "revOK"], code: `void setup() {
+  Serial.begin(9600);
+  int rpm = 3000;                 // ความเร็วรอบ (รอบ/นาที)
+  int minutes = 20;               // เวลาเดินเครื่อง (นาที)
+  int rev = rpm * minutes;        // จำนวนรอบทั้งหมด
+  long revL = rpm * minutes;      // เก็บใน long
+  long revOK = (long)rpm * minutes;
+  Serial.println(rev);
+  Serial.println(revL);
+  Serial.println(revOK);
+}
+
+void loop() {
+}
+`,
+      text: "3000 × 20 = 60000 แต่ int เก็บได้สูงสุด 32767 ทำนายค่าของตัวแปรทั้งสามก่อนทำแต่ละบรรทัด",
+      q: "คำถาม: revL เป็น long แล้ว ทำไมยังได้ค่าผิด (long) ในบรรทัดของ revOK ทำอะไร" },
+    { title: "แก้ค่าเฉลี่ยให้ถูก", editable: true, code: `void setup() {
+  Serial.begin(9600);
+  int a = 511;                    // ค่าที่อ่านจากเซนเซอร์ 3 ครั้ง
+  int b = 512;
+  int c = 514;
+  float avg = (a + b + c) / 3;    // ค่าเฉลี่ย
+  Serial.println(avg);
+}
+
+void loop() {
+}
+`,
+      text: "โปรแกรมนี้ควรพิมพ์ค่าเฉลี่ย 512.33 กด “ทำจนจบโปรแกรม” ดูผลก่อน จากนั้นกด “แก้โค้ด” แล้วแก้ให้ได้ค่าที่ถูก",
+      q: "คำถาม: avg เป็น float อยู่แล้ว ทำไมจึงได้ 512.00 แก้ได้กี่วิธี" },
+  ],
+});
+</script>
+</body>
+</html>

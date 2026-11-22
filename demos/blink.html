@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>digitalWrite และ delay: Arduino Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../engine/arduino-sim.css">
+</head>
+<body>
+<div id="app"></div>
+<script src="../engine/arduino-core.js"></script>
+<script src="../engine/arduino-sim.js"></script>
+<script>
+ArduinoSim.mount({
+  title: "digitalWrite และ delay",
+  back: "../index.html",
+  lede: "บทที่ 3 หัวข้อ 3.3 โปรแกรม Blink สั่งขา 13 เป็น HIGH และ LOW สลับกัน delay() คือสิ่งที่กำหนดว่าแต่ละสถานะค้างอยู่นานเท่าใด",
+  board: [{ type: "led", pin: 13, color: "yellow", label: "LED บนบอร์ด" }],
+  scope: { pins: [13], ms: 4000 },
+  trace: { title: "ตารางติดตามค่า (หนึ่งแถวต่อ loop() หนึ่งรอบ)", at: "loopEnd", empty: "ยังไม่จบรอบแรกของ loop()",
+    cols: [{ label: "รอบที่", iter: true }, { label: "เวลาจำลองเมื่อจบรอบ", time: true }] },
+  missions: [
+    { title: "Blink", speed: 8, realtime: 1, code: `void setup() {
+  pinMode(LED_BUILTIN, OUTPUT);       // ขา 13 เป็นเอาต์พุต
+}
+
+void loop() {
+  digitalWrite(LED_BUILTIN, HIGH);    // ไฟติด
+  delay(500);
+  digitalWrite(LED_BUILTIN, LOW);     // ไฟดับ
+  delay(500);
+}
+`,
+      text: "กด “ทำบรรทัดถัดไป” ทีละบรรทัดให้ครบ 2 รอบ ดูกราฟสัญญาณและเวลาจำลอง จากนั้นกด “รันต่อเนื่อง” LED จะกะพริบตามเวลาจริง",
+      q: "คำถาม: loop() หนึ่งรอบใช้เวลาเท่าใด และ LED ติดกี่เปอร์เซ็นต์ของเวลา" },
+    { title: "ลืม delay ตัวที่สอง (มีจุดผิด)", speed: 8, realtime: 1, code: `void setup() {
+  pinMode(LED_BUILTIN, OUTPUT);       // ขา 13 เป็นเอาต์พุต
+}
+
+void loop() {
+  digitalWrite(LED_BUILTIN, HIGH);    // ไฟติด
+  delay(500);
+  digitalWrite(LED_BUILTIN, LOW);     // ไฟดับ
+}
+`,
+      text: "โค้ดนี้ไม่มี delay หลังคำสั่งดับไฟ กด “รันต่อเนื่อง” แล้วดู LED และกราฟ",
+      q: "คำถาม: ทำไม LED ดูเหมือนติดตลอด ทั้งที่มีคำสั่ง digitalWrite(LED_BUILTIN, LOW)" },
+    { title: "แก้จังหวะการกะพริบเอง", speed: 8, realtime: 1, editable: true, code: `void setup() {
+  pinMode(LED_BUILTIN, OUTPUT);       // ขา 13 เป็นเอาต์พุต
+}
+
+void loop() {
+  digitalWrite(LED_BUILTIN, HIGH);    // ไฟติด
+  delay(500);
+  digitalWrite(LED_BUILTIN, LOW);     // ไฟดับ
+  delay(500);
+}
+`,
+      text: "กด “แก้โค้ด” แล้วแก้ให้ LED ติด 200 ms และดับ 800 ms จากนั้นรันต่อเนื่องและดูกราฟ",
+      q: "คำถาม: หนึ่งรอบใช้เวลาเท่าเดิมหรือไม่ และ LED ติดกี่เปอร์เซ็นต์ของเวลา" },
+  ],
+});
+</script>
+</body>
+</html>

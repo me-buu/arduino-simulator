@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>คำสั่งวนซ้ำ while: ตัวจำลอง Arduino</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../engine/arduino-sim.css">
+</head>
+<body>
+<div id="app"></div>
+<script src="../engine/arduino-core.js"></script>
+<script src="../engine/arduino-sim.js"></script>
+<script>
+ArduinoSim.mount({
+  title: "คำสั่งวนซ้ำ while",
+  back: "../index.html",
+  lede: "บทที่ 2 หัวข้อ 2.5.5 while ทำซ้ำตราบที่เงื่อนไขยังเป็นจริง เหมาะกับงานที่ไม่รู้จำนวนรอบล่วงหน้า เช่น เติมน้ำจนกว่าจะถึงระดับที่ต้องการ",
+  serial: true,
+  trace: {
+    title: "ตารางติดตามค่า (หนึ่งแถวต่อการตรวจเงื่อนไขของ while หนึ่งครั้ง)",
+    stmt: "while", on: "cond",
+    empty: "ยังไม่ได้ตรวจเงื่อนไขของ while",
+    cols: [{ label: "ครั้งที่", n: true }, { label: "level", var: "level" }, { label: "seconds", var: "seconds" }, { label: "เงื่อนไข", cond: true, hl: true }],
+  },
+  missions: [
+    { title: "เติมน้ำจนถึง 20 cm", predict: true, code: `void setup() {
+  Serial.begin(9600);
+  int level = 0;                  // ระดับน้ำในถัง (cm)
+  int seconds = 0;                // เวลาที่ผ่านไป (s)
+  while (level < 20) {            // เติมจนกว่าน้ำจะถึง 20 cm
+    level = level + 6;            // น้ำขึ้น 6 cm ทุกวินาที
+    seconds++;
+    Serial.println(level);
+  }
+  Serial.print("Time = ");
+  Serial.println(seconds);
+}
+
+void loop() {
+}
+`,
+      text: "กด “ทำบรรทัดถัดไป” ไปเรื่อย ๆ ก่อนตรวจเงื่อนไขของ while ทุกครั้ง ตัวจำลองจะให้ทำนายว่าจริงหรือเท็จ",
+      q: "คำถาม: ใช้เวลากี่วินาที และทำไมระดับน้ำสุดท้ายจึงเกิน 20 cm" },
+    { title: "ลืมเพิ่มระดับน้ำ (มีจุดผิด)", predict: false, speed: 12, code: `void setup() {
+  Serial.begin(9600);
+  int level = 0;                  // ระดับน้ำในถัง (cm)
+  int seconds = 0;                // เวลาที่ผ่านไป (s)
+  while (level < 20) {            // เติมจนกว่าน้ำจะถึง 20 cm
+    seconds++;
+    Serial.println(level);
+  }
+  Serial.print("Time = ");
+  Serial.println(seconds);
+}
+
+void loop() {
+}
+`,
+      text: "โค้ดนี้ลบบรรทัดที่เพิ่มระดับน้ำออก กด “ทำจนจบโปรแกรม” แล้วดูตาราง Serial Monitor และข้อความที่ตัวจำลองแจ้ง",
+      q: "คำถาม: ทำไมลูปไม่จบ ถ้าเป็นบอร์ดจริง loop() จะได้ทำงานหรือไม่" },
+    { title: "แก้ระดับเป้าหมายเอง", predict: false, editable: true, code: `void setup() {
+  Serial.begin(9600);
+  int level = 0;                  // ระดับน้ำในถัง (cm)
+  int seconds = 0;                // เวลาที่ผ่านไป (s)
+  while (level < 20) {            // เติมจนกว่าน้ำจะถึง 20 cm
+    level = level + 6;            // น้ำขึ้น 6 cm ทุกวินาที
+    seconds++;
+    Serial.println(level);
+  }
+  Serial.print("Time = ");
+  Serial.println(seconds);
+}
+
+void loop() {
+}
+`,
+      text: "กด “แก้โค้ด” แล้วแก้ให้เติมน้ำจนกว่าจะถึงอย่างน้อย 30 cm ก่อนกด “ใช้โค้ดนี้” ให้ทำนายก่อนว่าโปรแกรมจะพิมพ์ Time = เท่าใด",
+      q: "คำถาม: เงื่อนไขของ while ต้องเขียนอย่างไร และคำตอบที่ทำนายไว้ถูกหรือไม่" },
+  ],
+});
+</script>
+</body>
+</html>

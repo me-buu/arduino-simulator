@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>digitalRead และ pull-up: Arduino Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../engine/arduino-sim.css">
+</head>
+<body>
+<div id="app"></div>
+<script src="../engine/arduino-core.js"></script>
+<script src="../engine/arduino-sim.js"></script>
+<script>
+ArduinoSim.mount({
+  title: "digitalRead และตัวต้านทาน pull-up",
+  back: "../index.html",
+  lede: "บทที่ 3 หัวข้อ 3.4.3 และ 3.4.4 ค่าที่ digitalRead() อ่านได้ขึ้นกับการต่อวงจรและโหมดของขา ถ้าขาไม่ได้ต่อกับอะไรเลย ค่าที่อ่านได้จะสุ่ม",
+  serial: true,
+  board: [{ type: "button", pin: 7, label: "ปุ่มกด" }],
+  trace: { title: "ตารางติดตามค่า (หนึ่งแถวต่อ loop() หนึ่งรอบ)", at: "loopEnd", empty: "ยังไม่จบรอบแรกของ loop()",
+    cols: [{ label: "รอบที่", iter: true }, { label: "ปุ่ม", widget: 0 }, { label: "state", var: "state" }] },
+  missions: [
+    { title: "INPUT_PULLUP: ปุ่มต่อลง GND", speed: 8, realtime: 1, predictVars: ["state"], code: `const int BUTTON_PIN = 7;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);  // เปิดตัวต้านทาน pull-up ภายใน
+}
+
+void loop() {
+  int state = digitalRead(BUTTON_PIN);
+  Serial.println(state);
+  delay(300);
+}
+`, board: { 0: { to: "gnd", resistor: "none" } },
+      text: "ปุ่มต่อจากขา 7 ลง GND (ตัวอย่างที่ 3.5) กด “ทำบรรทัดถัดไป” ก่อนอ่านขาทุกครั้งตัวจำลองจะให้ทำนายค่า state ลองทั้งตอนปล่อยปุ่มและตอนติ๊ก “ค้างปุ่มไว้”",
+      q: "คำถาม: ไม่กดอ่านได้เท่าใด กดอ่านได้เท่าใด ทำไมจึงกลับด้านกับที่คาดไว้" },
+    { title: "INPUT กับตัวต้านทาน pull-down ภายนอก", speed: 8, realtime: 1, code: `const int BUTTON_PIN = 7;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(BUTTON_PIN, INPUT);         // มีตัวต้านทาน pull-down ภายนอก
+}
+
+void loop() {
+  int state = digitalRead(BUTTON_PIN);
+  Serial.println(state);
+  delay(300);
+}
+`, board: { 0: { to: "5v", resistor: "pulldown" } },
+      text: "ปุ่มต่อจาก 5V ไปขา 7 และมีตัวต้านทาน pull-down 10 kΩ ลง GND (ตัวอย่างที่ 3.4) กด “รันต่อเนื่อง” แล้วกดปุ่มดู",
+      q: "คำถาม: ค่าที่อ่านได้ต่างจากภารกิจ 1 อย่างไร ตัวต้านทาน pull-down ทำหน้าที่อะไรตอนไม่กดปุ่ม" },
+    { title: "ลืมตัวต้านทาน (มีจุดผิด)", speed: 8, realtime: 1, editable: true, code: `const int BUTTON_PIN = 7;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(BUTTON_PIN, INPUT);         // ลืมใส่ตัวต้านทาน
+}
+
+void loop() {
+  int state = digitalRead(BUTTON_PIN);
+  Serial.println(state);
+  delay(300);
+}
+`, board: { 0: { to: "gnd", resistor: "none" } },
+      text: "ปุ่มต่อจากขา 7 ลง GND แต่ใช้โหมด INPUT และไม่มีตัวต้านทาน กด “รันต่อเนื่อง” โดยไม่กดปุ่ม ดูค่าที่อ่านได้",
+      q: "คำถาม: ทำไมตอนไม่กดปุ่มค่าที่ได้จึงสุ่ม กด “แก้โค้ด” แล้วแก้ให้ถูกโดยไม่ต้องเพิ่มอุปกรณ์" },
+  ],
+});
+</script>
+</body>
+</html>

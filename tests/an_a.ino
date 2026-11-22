@@ -1,0 +1,16 @@
+// ตัวอย่างที่ 4.1 อ่านค่า potentiometer ที่ขา A0 แล้วแปลงเป็นแรงดัน
+const int POT_PIN = A0;
+
+void setup() {
+  Serial.begin(9600);               // ขาอนาล็อกไม่ต้องใช้ pinMode()
+}
+
+void loop() {
+  int adc = analogRead(POT_PIN);    // ได้ค่า 0 ถึง 1023
+  float volt = adc * 5.0 / 1023.0;  // ใช้ 5.0 เพื่อให้คำนวณแบบทศนิยม
+  Serial.print("ADC = ");
+  Serial.print(adc);
+  Serial.print("   V = ");
+  Serial.println(volt);
+  delay(500);
+}

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>setup() และ loop(): ตัวจำลอง Arduino</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../engine/arduino-sim.css">
+</head>
+<body>
+<div id="app"></div>
+<script src="../engine/arduino-core.js"></script>
+<script src="../engine/arduino-sim.js"></script>
+<script>
+ArduinoSim.mount({
+  title: "setup() และ loop()",
+  back: "../index.html",
+  lede: "บทที่ 2 หัวข้อ 2.5.1 ทุกโปรแกรม Arduino มี 2 ฟังก์ชัน setup() ทำครั้งเดียวตอนเริ่ม และ loop() ทำซ้ำไปเรื่อย ๆ ไม่รู้จบ",
+  serial: true,
+  trace: {
+    title: "ตารางติดตามค่า (หนึ่งแถวต่อ loop() หนึ่งรอบ)",
+    at: "loopEnd",
+    empty: "ยังไม่จบรอบแรกของ loop()",
+    cols: [{ label: "รอบที่", iter: true }, { label: "count", var: "count" }, { label: "เวลาจำลอง", time: true }],
+  },
+  missions: [
+    { title: "อะไรทำครั้งเดียว อะไรทำซ้ำ", predict: false, speed: 6, code: `int count = 0;                    // ตัวแปรส่วนกลาง ค่าคงอยู่ข้ามรอบ
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println("Start");        // ทำครั้งเดียว
+}
+
+void loop() {
+  count++;
+  Serial.print("loop ");
+  Serial.println(count);
+  delay(1000);
+}
+`,
+      text: "กด “ทำบรรทัดถัดไป” จนจบ setup() แล้วกด “ทำจนจบรอบ loop()” อีก 3 ครั้ง ดูว่าแถบสีเหลืองกลับไปที่บรรทัดไหนทุกครั้งที่จบรอบ",
+      q: "คำถาม: Start ถูกพิมพ์กี่ครั้ง count มีค่าเท่าใดหลังรอบที่ 3 และ delay(1000) ทำให้เวลาจำลองเพิ่มขึ้นรอบละเท่าใด" },
+    { title: "ย้ายตัวแปรเข้าไปใน loop()", predict: false, speed: 6, code: `void setup() {
+  Serial.begin(9600);
+  Serial.println("Start");        // ทำครั้งเดียว
+}
+
+void loop() {
+  int count = 0;                  // ประกาศไว้ใน loop()
+  count++;
+  Serial.print("loop ");
+  Serial.println(count);
+  delay(1000);
+}
+`,
+      text: "โค้ดนี้ประกาศ count ไว้ข้างใน loop() กด “ทำจนจบรอบ loop()” 3 ครั้ง ดูค่า count ในตารางและในค่าในหน่วยความจำ",
+      q: "คำถาม: ทำไม count ไม่เพิ่มขึ้นเลย ตัวแปรที่ประกาศใน loop() เกิดและหายไปเมื่อใด" },
+    { title: "หยุดนับเมื่อครบ 5", predict: false, editable: true, speed: 8, code: `int count = 0;                    // ตัวแปรส่วนกลาง ค่าคงอยู่ข้ามรอบ
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println("Start");        // ทำครั้งเดียว
+}
+
+void loop() {
+  count++;
+  Serial.print("loop ");
+  Serial.println(count);
+  delay(1000);
+}
+`,
+      text: "กด “แก้โค้ด” แล้วใช้ if แก้ให้โปรแกรมพิมพ์ loop 1 ถึง loop 5 เท่านั้น รอบต่อจากนั้นไม่ต้องพิมพ์อะไร จากนั้นกด “รันต่อเนื่อง”",
+      q: "คำถาม: หลังรอบที่ 5 loop() ยังทำงานอยู่หรือไม่ ดูจากตารางและเวลาจำลอง" },
+  ],
+});
+</script>
+</body>
+</html>
