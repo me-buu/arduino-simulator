@@ -6,7 +6,7 @@
   const C = window.ArduinoCore;
   const LED_COLORS = { red: ["#FF3B2F", "#5E2A27"], yellow: ["#FFD21F", "#5B4B12"], green: ["#2FD563", "#1D4A2A"], blue: ["#3B8BFF", "#1B2D52"], white: ["#F4F7FA", "#4A4F55"] };
   const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  const KW = new Set("void int long float double bool boolean byte char unsigned const volatile if else for while do switch case break continue return default true false".split(" "));
+  const KW = new Set("void int long float double bool boolean byte char uint8_t int8_t uint16_t int16_t uint32_t int32_t unsigned const volatile if else for while do switch case break continue return default true false".split(" "));
   const FN = new Set("setup loop pinMode digitalRead digitalWrite analogRead analogWrite delay delayMicroseconds millis map constrain min max abs Serial begin print println attachInterrupt digitalPinToInterrupt pulseIn".split(" "));
   const CS = new Set("HIGH LOW INPUT OUTPUT INPUT_PULLUP LED_BUILTIN PI A0 A1 A2 A3 A4 A5 FALLING RISING CHANGE".split(" "));
   function highlight(src) {
@@ -44,7 +44,7 @@
           <ol>
             <li>ทำภารกิจตามลำดับ เมื่อกดเลือกภารกิจ ตัวจำลองจะเริ่มใหม่และตั้งค่าให้เอง</li>
             <li>กด <b>ทำบรรทัดถัดไป</b> ทีละครั้ง แถบสีเหลืองคือบรรทัดที่ Arduino กำลังจะทำ ป้ายสีท้ายบรรทัดคือผลของบรรทัดที่เพิ่งทำ (ป้ายเส้นประคือผลจากรอบก่อน)</li>
-            <li>${hasBoard ? "ปรับอุปกรณ์บนบอร์ดสีเขียวได้ตลอดเวลา แล้วดูว่าค่าในหน่วยความจำและตารางด้านล่างเปลี่ยนอย่างไร" : "ดูค่าในหน่วยความจำและ Serial Monitor ทางขวา ตารางด้านล่างสรุปค่าทุกครั้งที่ตรวจเงื่อนไข"}</li>
+            <li>${hasBoard ? "ปรับอุปกรณ์บนบอร์ดสีเขียวได้ตลอดเวลา แล้วดูว่าค่าในหน่วยความจำและตารางด้านล่างเปลี่ยนอย่างไร" : "ดูค่าในหน่วยความจำและ Serial Monitor ทางขวา" + (D.trace ? " และตารางติดตามค่าด้านล่าง" : "")} กด <b>คัดลอกโค้ด</b> เพื่อนำโค้ดไปวางใน Tinkercad หรือ Arduino IDE</li>
           </ol>
         </section>
         <div class="as-tabs" role="tablist"></div>
@@ -497,14 +497,21 @@
       if (D.serial && machine) { const s = $("asSerial"); s.textContent = machine.serialOut.slice(-3000); s.scrollTop = s.scrollHeight; }
     }
     function renderMission() {
-      $("asMission").innerHTML = `<p>${M.text}</p><p class="q">${M.q}</p>` +
+      $("asMission").innerHTML = `<p>${M.text}</p>` + (M.q ? `<p class="q">${M.q}</p>` : "") +
         ((M.predict || M.predictVars) && score.all ? `<p class="score">ทำนายถูก ${score.ok} จาก ${score.all} ครั้ง</p>` : "");
     }
 
     // ---------- แก้โค้ด ----------
+    function copyCode() {
+      const btn = $("asCopy");
+      const done = () => { btn.textContent = "คัดลอกแล้ว"; setTimeout(() => { btn.textContent = "คัดลอกโค้ด"; }, 1500); };
+      const fallback = () => { const t = el("textarea"); t.value = code; document.body.appendChild(t); t.select(); try { document.execCommand("copy"); done(); } catch (e) {} t.remove(); };
+      if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(code).then(done, fallback); else fallback();
+    }
     function renderEditBtns() {
       const box = $("asEditBtns");
       box.innerHTML = "";
+      if (!editing) { const cp = el("button", { class: "as-btn", id: "asCopy" }, "คัดลอกโค้ด"); cp.onclick = copyCode; box.append(cp, " "); }
       if (!M.editable) return;
       if (!editing) {
         const b = el("button", { class: "as-btn" }, "แก้โค้ด");

@@ -66,7 +66,7 @@
   }
 
   // ---------------- ตัวแยกโครงสร้าง ----------------
-  const TYPE_WORDS = new Set(["void", "int", "long", "float", "double", "bool", "boolean", "byte", "char", "unsigned", "short", "word", "const", "volatile", "static"]);
+  const TYPE_WORDS = new Set(["void", "int", "long", "float", "double", "bool", "boolean", "byte", "char", "unsigned", "short", "word", "const", "volatile", "static", "uint8_t", "int8_t", "uint16_t", "int16_t", "uint32_t", "int32_t"]);
   function parse(src) {
     const t = tokenize(src);
     let p = 0;
@@ -93,7 +93,8 @@
       }
       if (!base) base = unsigned ? "int" : null;
       if (!base) throw new SimError("ไม่พบชนิดข้อมูล", t[p].line);
-      let ty = { int: "int", short: "int", long: "long", float: "float", double: "float", bool: "bool", boolean: "bool", byte: "byte", char: "char", void: "void", word: "uint" }[base];
+      let ty = { int: "int", short: "int", long: "long", float: "float", double: "float", bool: "bool", boolean: "bool", byte: "byte", char: "char", void: "void", word: "uint",
+        uint8_t: "byte", int8_t: "int8", uint16_t: "uint", int16_t: "int", uint32_t: "ulong", int32_t: "long" }[base];
       if (unsigned) ty = ty === "long" ? "ulong" : ty === "char" ? "byte" : "uint";
       return { ty, isConst };
     }
@@ -293,7 +294,7 @@
       case "float": return f32(x);
       case "bool": return x ? 1 : 0;
       case "byte": return mod(Math.trunc(x), 256);
-      case "char": { const v = mod(Math.trunc(x), 256); return v >= 128 ? v - 256 : v; }
+      case "char": case "int8": { const v = mod(Math.trunc(x), 256); return v >= 128 ? v - 256 : v; }
       case "int": { const v = mod(Math.trunc(x), 65536); return v >= 32768 ? v - 65536 : v; }
       case "uint": return mod(Math.trunc(x), 65536);
       case "long": { const v = mod(Math.trunc(x), 4294967296); return v >= 2147483648 ? v - 4294967296 : v; }
@@ -305,7 +306,7 @@
     if (Math.abs(a) > 9007199254740991) return Number(((BigInt(Math.round(a)) % BigInt(n)) + BigInt(n)) % BigInt(n));
     return ((a % n) + n) % n;
   }
-  const promote = (ty) => (ty === "bool" || ty === "byte" || ty === "char") ? "int" : ty;
+  const promote = (ty) => (ty === "bool" || ty === "byte" || ty === "char" || ty === "int8") ? "int" : ty;
   function common(a, b) {
     const x = promote(a), y = promote(b);
     return RANK[x] >= RANK[y] ? x : y;

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ตัวอย่างในบทที่ 2: Arduino Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../engine/arduino-sim.css">
+</head>
+<body>
+<div id="app"></div>
+<script src="../engine/arduino-core.js"></script>
+<script src="../engine/arduino-sim.js"></script>
+<script>
+ArduinoSim.mount({
+  title: "ตัวอย่างในบทที่ 2",
+  back: "../index.html",
+  lede: "โค้ดตัวอย่างทุกตัวของบทที่ 2 ในเอกสารประกอบการสอน คัดลอกไปใช้ได้ทันทีโดยการย่อหน้าและคอมเมนต์ภาษาไทยไม่ผิดเพี้ยน เลือกตัวอย่างจากแท็บด้านล่าง",
+  serial: true,
+  missions: [
+    { tab: "2.1", title: "ตัวอย่างที่ 2.1 โครงสร้างโปรแกรม Arduino", speed: 8, realtime: 1, code: `// ตัวอย่างที่ 2.1 โครงสร้างโปรแกรม Arduino
+void setup() {
+  Serial.begin(9600);            // เริ่มการสื่อสารอนุกรมที่ 9600 บิตต่อวินาที
+  Serial.println("Hello BUU");   // ทำงานครั้งเดียวตอนเริ่มโปรแกรม
+}
+
+void loop() {
+  Serial.println("loop");        // ทำงานซ้ำไม่รู้จบ
+  delay(1000);                   // หน่วงเวลา 1000 ms = 1 วินาที
+}
+`,
+      text: "โค้ดเดียวกับในเอกสาร กด “คัดลอกโค้ด” เพื่อนำไปวางใน Tinkercad หรือ Arduino IDE หรือกด “ทำบรรทัดถัดไป” เพื่อดูการทำงานทีละบรรทัด โปรแกรมนี้วนทำงานใน loop() ไปเรื่อย ๆ" },
+    { tab: "2.2", title: "ตัวอย่างที่ 2.2 ตัวแปรและค่าคงที่", speed: 8, realtime: 1, code: `// ตัวอย่างที่ 2.2 ตัวแปรและค่าคงที่
+const float GEAR_RATIO = 3.5;    // ค่าคงที่: อัตราทดของชุดเฟือง
+int motorRpm = 1750;             // ความเร็วรอบมอเตอร์ (รอบ/นาที)
+bool isRunning = true;           // สถานะของเครื่อง
+
+void setup() {
+  Serial.begin(9600);
+  float outputRpm = motorRpm / GEAR_RATIO;   // ความเร็วรอบเพลาขาออก
+  Serial.print("Output speed = ");
+  Serial.print(outputRpm);       // float พิมพ์ทศนิยม 2 ตำแหน่ง
+  Serial.println(" rpm");
+  Serial.println(isRunning);     // bool พิมพ์เป็น 1 (จริง) หรือ 0 (เท็จ)
+}
+
+void loop() {
+}
+`,
+      text: "โค้ดเดียวกับในเอกสาร กด “คัดลอกโค้ด” เพื่อนำไปวางใน Tinkercad หรือ Arduino IDE หรือกด “ทำบรรทัดถัดไป” เพื่อดูการทำงานทีละบรรทัด" },
+    { tab: "2.3", title: "ตัวอย่างที่ 2.3 การล้นของตัวแปร", speed: 8, realtime: 1, code: `// ตัวอย่างที่ 2.3 การล้นของตัวแปร
+void setup() {
+  Serial.begin(9600);
+  // ล้นเล็กน้อย: เกินช่วงเพียง 1
+  byte b = 255;
+  b = b + 1;                           // 256 เกินช่วง 0 ถึง 255
+  Serial.println(b);                   // ได้ 0
+  int i = 32767;
+  i = i + 1;                           // 32768 เกินช่วงของ int
+  Serial.println(i);                   // ได้ -32768
+  unsigned int u = 0;
+  u = u - 1;                           // -1 ต่ำกว่าช่วง 0 ถึง 65535
+  Serial.println(u);                   // ได้ 65535
+
+  // ล้นมาก: ตัวอย่างงานจริง
+  int rpm = 3000;                      // ความเร็วรอบ (รอบ/นาที)
+  int minutes = 20;                    // เวลาเดินเครื่อง (นาที)
+  int revInt = rpm * minutes;          // ผิด: 60000 เกินช่วงของ int
+  long revLong = (long)rpm * minutes;  // ถูก: แปลงเป็น long ก่อนคูณ
+  Serial.println(revInt);              // ได้ -5536
+  Serial.println(revLong);             // ได้ 60000
+}
+
+void loop() {
+}
+`,
+      text: "โค้ดเดียวกับในเอกสาร กด “คัดลอกโค้ด” เพื่อนำไปวางใน Tinkercad หรือ Arduino IDE หรือกด “ทำบรรทัดถัดไป” เพื่อดูการทำงานทีละบรรทัด" },
+    { tab: "2.4", title: "ตัวอย่างที่ 2.4 การหารจำนวนเต็ม", speed: 8, realtime: 1, code: `// ตัวอย่างที่ 2.4 การหารจำนวนเต็ม
+void setup() {
+  Serial.begin(9600);
+  int a = 12;
+  int b = 5;
+  Serial.println(a / b);          // หารจำนวนเต็ม ได้ 2 (ตัดเศษทิ้ง)
+  Serial.println(a % b);          // เศษจากการหาร ได้ 2
+  Serial.println(a / 5.0);        // มีเลขทศนิยมในนิพจน์ ได้ 2.40
+  Serial.println((float)a / b);   // แปลง a เป็น float ก่อนหาร ได้ 2.40
+}
+
+void loop() {
+}
+`,
+      text: "โค้ดเดียวกับในเอกสาร กด “คัดลอกโค้ด” เพื่อนำไปวางใน Tinkercad หรือ Arduino IDE หรือกด “ทำบรรทัดถัดไป” เพื่อดูการทำงานทีละบรรทัด" },
+    { tab: "2.5", title: "ตัวอย่างที่ 2.5 ตัดสินใจตามอุณหภูมิน้ำมันไฮดรอลิก", speed: 8, realtime: 1, code: `// ตัวอย่างที่ 2.5 ตัดสินใจตามอุณหภูมิน้ำมันไฮดรอลิก
+void setup() {
+  Serial.begin(9600);
+  float oilTemp = 72.5;           // อุณหภูมิน้ำมัน (°C) สมมติว่าอ่านจากเซนเซอร์
+
+  if (oilTemp > 80.0) {
+    Serial.println("ALARM");      // ร้อนเกิน ต้องหยุดปั๊ม
+  } else if (oilTemp > 60.0) {
+    Serial.println("WARNING");    // อุ่น ให้เปิดพัดลมระบายความร้อน
+  } else {
+    Serial.println("NORMAL");     // อุณหภูมิปกติ
+  }
+}
+
+void loop() {
+}
+`,
+      text: "โค้ดเดียวกับในเอกสาร กด “คัดลอกโค้ด” เพื่อนำไปวางใน Tinkercad หรือ Arduino IDE หรือกด “ทำบรรทัดถัดไป” เพื่อดูการทำงานทีละบรรทัด" },
+    { tab: "2.6", title: "ตัวอย่างที่ 2.6 เลือกโหมดการทำงานด้วย switch-case", speed: 8, realtime: 1, code: `// ตัวอย่างที่ 2.6 เลือกโหมดการทำงานด้วย switch-case
+void setup() {
+  Serial.begin(9600);
+  int mode = 2;                   // 1 = เดินเครื่อง, 2 = หยุดชั่วคราว, 3 = บำรุงรักษา
+
+  switch (mode) {
+    case 1:
+      Serial.println("RUN");
+      break;                      // ออกจาก switch
+    case 2:
+      Serial.println("PAUSE");
+      break;
+    case 3:
+      Serial.println("MAINTENANCE");
+      break;
+    default:                      // ค่าที่ไม่ตรงกับ case ใดเลย
+      Serial.println("UNKNOWN MODE");
+      break;
+  }
+}
+
+void loop() {
+}
+`,
+      text: "โค้ดเดียวกับในเอกสาร กด “คัดลอกโค้ด” เพื่อนำไปวางใน Tinkercad หรือ Arduino IDE หรือกด “ทำบรรทัดถัดไป” เพื่อดูการทำงานทีละบรรทัด" },
+    { tab: "2.7", title: "ตัวอย่างที่ 2.7 ตารางแปลงความดันจาก bar เป็น psi ด้วย for", speed: 8, realtime: 1, code: `// ตัวอย่างที่ 2.7 ตารางแปลงความดันจาก bar เป็น psi ด้วย for
+void setup() {
+  Serial.begin(9600);
+  for (int bar = 0; bar <= 10; bar = bar + 2) {   // bar = 0, 2, 4, ..., 10
+    float psi = bar * 14.504;                     // 1 bar = 14.504 psi
+    Serial.print(bar);
+    Serial.print(" bar = ");
+    Serial.print(psi);
+    Serial.println(" psi");
+  }
+}
+
+void loop() {
+}
+`,
+      text: "โค้ดเดียวกับในเอกสาร กด “คัดลอกโค้ด” เพื่อนำไปวางใน Tinkercad หรือ Arduino IDE หรือกด “ทำบรรทัดถัดไป” เพื่อดูการทำงานทีละบรรทัด" },
+    { tab: "2.8", title: "ตัวอย่างที่ 2.8 จำลองการเติมน้ำเข้าถังด้วย while", speed: 8, realtime: 1, code: `// ตัวอย่างที่ 2.8 จำลองการเติมน้ำเข้าถังด้วย while
+void setup() {
+  Serial.begin(9600);
+  float level = 0.0;              // ระดับน้ำในถัง (cm)
+  int seconds = 0;                // เวลาที่ผ่านไป (s)
+
+  while (level < 50.0) {          // ทำซ้ำตราบที่ระดับน้ำยังไม่ถึง 50 cm
+    level = level + 3.5;          // ระดับน้ำเพิ่มขึ้น 3.5 cm ทุกวินาที
+    seconds++;                    // เพิ่มค่าขึ้น 1
+  }
+  Serial.print("Time to fill = ");
+  Serial.print(seconds);
+  Serial.println(" s");
+}
+
+void loop() {
+}
+`,
+      text: "โค้ดเดียวกับในเอกสาร กด “คัดลอกโค้ด” เพื่อนำไปวางใน Tinkercad หรือ Arduino IDE หรือกด “ทำบรรทัดถัดไป” เพื่อดูการทำงานทีละบรรทัด" },
+    { tab: "2.9", title: "ตัวอย่างที่ 2.9 อาร์เรย์เก็บค่าที่วัดได้ แล้วหาค่าเฉลี่ย", speed: 8, realtime: 1, code: `// ตัวอย่างที่ 2.9 อาร์เรย์เก็บค่าที่วัดได้ แล้วหาค่าเฉลี่ย
+float temps[5] = {25.1, 25.4, 24.9, 25.0, 25.6};   // อุณหภูมิ 5 ครั้ง (°C)
+
+void setup() {
+  Serial.begin(9600);
+  float sum = 0;
+  for (int i = 0; i < 5; i++) {   // ดัชนี i = 0, 1, 2, 3, 4
+    sum += temps[i];              // เท่ากับ sum = sum + temps[i]
+  }
+  Serial.print("Average = ");
+  Serial.println(sum / 5);
+}
+
+void loop() {
+}
+`,
+      text: "โค้ดเดียวกับในเอกสาร กด “คัดลอกโค้ด” เพื่อนำไปวางใน Tinkercad หรือ Arduino IDE หรือกด “ทำบรรทัดถัดไป” เพื่อดูการทำงานทีละบรรทัด" },
+    { tab: "2.10", title: "ตัวอย่างที่ 2.10 ฟังก์ชันแปลงองศาเซลเซียสเป็นองศาฟาเรนไฮต์", speed: 8, realtime: 1, code: `// ตัวอย่างที่ 2.10 ฟังก์ชันแปลงองศาเซลเซียสเป็นองศาฟาเรนไฮต์
+float celsiusToF(float c) {
+  return c * 9.0 / 5.0 + 32.0;    // ส่งผลลัพธ์กลับไปยังผู้เรียกใช้
+}
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println(celsiusToF(100.0));   // ได้ 212.00
+  Serial.println(celsiusToF(25.0));    // ได้ 77.00
+}
+
+void loop() {
+}
+`,
+      text: "โค้ดเดียวกับในเอกสาร กด “คัดลอกโค้ด” เพื่อนำไปวางใน Tinkercad หรือ Arduino IDE หรือกด “ทำบรรทัดถัดไป” เพื่อดูการทำงานทีละบรรทัด" },
+    { tab: "เพิ่มเติม", title: "ตัวอย่างเพิ่มเติม char เทียบกับ uint8_t", speed: 8, realtime: 1, code: `// ตัวอย่างเพิ่มเติม char เทียบกับ uint8_t
+void setup() {
+  Serial.begin(9600);
+  char c = 65;                // char เก็บรหัสของตัวอักษร
+  uint8_t n = 65;             // uint8_t (byte) เก็บตัวเลข 0 ถึง 255
+  Serial.println(c);          // พิมพ์ A
+  Serial.println(n);          // พิมพ์ 65
+  char k = 'B';               // ใส่ตัวอักษรในเครื่องหมาย ' '
+  Serial.println(k);          // พิมพ์ B
+  char t = 200;               // char เก็บได้ -128 ถึง 127
+  Serial.println((int)t);     // พิมพ์ -56 ไม่ใช่ 200
+}
+
+void loop() {
+}
+`,
+      text: "โค้ดเดียวกับในเอกสาร กด “คัดลอกโค้ด” เพื่อนำไปวางใน Tinkercad หรือ Arduino IDE หรือกด “ทำบรรทัดถัดไป” เพื่อดูการทำงานทีละบรรทัด" },
+  ],
+});
+</script>
+</body>
+</html>
