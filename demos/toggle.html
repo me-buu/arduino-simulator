@@ -22,7 +22,7 @@ ArduinoSim.mount({
   trace: { title: "ตารางติดตามค่า (หนึ่งแถวต่อ loop() หนึ่งรอบ)", at: "loopEnd", empty: "ยังไม่จบรอบแรกของ loop()",
     cols: [{ label: "รอบที่", iter: true }, { label: "ปุ่ม", widget: 0 }, { label: "state", var: "state" }, { label: "lastState ท้ายรอบ", var: "lastState" }, { label: "ledOn", var: "ledOn" }, { label: "LED", pin: 8 }] },
   missions: [
-    { title: "จำสถานะปุ่มรอบก่อน", predict: true, speed: 8, code: `const int BUTTON_PIN = 7;
+    { title: "จำสถานะปุ่มรอบก่อน", speed: 8, code: `const int BUTTON_PIN = 7;
 const int LED_PIN = 8;
 bool ledOn = false;               // สถานะของ LED
 int lastState = HIGH;             // สถานะปุ่มรอบก่อน
@@ -41,7 +41,7 @@ void loop() {
   lastState = state;              // จำไว้ใช้รอบหน้า
 }
 `,
-      text: "ติ๊ก “ค้างปุ่มไว้” แล้วกด “ทำจนจบรอบ loop()” 5 ครั้ง ก่อนถึงคำสั่ง if ทุกครั้ง ตัวจำลองจะให้ทำนายว่าเงื่อนไขเป็นจริงหรือเท็จ",
+      text: "ติ๊ก “ค้างปุ่มไว้” แล้วกด “ทำจนจบรอบ loop()” 5 ครั้ง ดูป้ายท้ายบรรทัด if ว่าเงื่อนไขเป็นจริงในรอบใด",
       q: "คำถาม: กดปุ่มค้างไว้ 5 รอบ LED สลับกี่ครั้ง เพราะอะไร" },
     { title: "ไม่จำสถานะ (มีจุดผิด)", speed: 8, code: `const int BUTTON_PIN = 7;
 const int LED_PIN = 8;

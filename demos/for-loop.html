@@ -26,7 +26,7 @@ ArduinoSim.mount({
     cols: [{ label: "ครั้งที่", n: true }, { label: "i", var: "i" }, { label: "เงื่อนไข", cond: true, hl: true }, { label: "sum ตอนตรวจ", var: "sum" }],
   },
   missions: [
-    { title: "for ที่บวก 1 ถึง 4", predict: true, code: `void setup() {
+    { title: "for ที่บวก 1 ถึง 4", code: `void setup() {
   Serial.begin(9600);
   int sum = 0;                    // ผลรวม เริ่มจาก 0
   for (int i = 1; i <= 4; i++) {
@@ -40,9 +40,9 @@ ArduinoSim.mount({
 void loop() {
 }
 `,
-      text: "กด “ทำบรรทัดถัดไป” ไปเรื่อย ๆ ทุกครั้งก่อนตรวจเงื่อนไขของ for ตัวจำลองจะให้ทำนายว่าเงื่อนไขเป็นจริงหรือเท็จ ดูว่าแถบสีเหลืองย้อนกลับขึ้นไปที่บรรทัด for เมื่อใด",
+      text: "กด “ทำบรรทัดถัดไป” ไปเรื่อย ๆ ดูว่าแถบสีเหลืองย้อนกลับขึ้นไปที่บรรทัด for เมื่อใด และค่าของ i กับ sum ในค่าในหน่วยความจำเปลี่ยนอย่างไรในแต่ละรอบ",
       q: "คำถาม: บรรทัด sum = sum + i ทำงานกี่ครั้ง และตอนที่เงื่อนไขเป็นเท็จ i มีค่าเท่าใด" },
-    { title: "เปลี่ยน <= เป็น <", predict: false, code: `void setup() {
+    { title: "เปลี่ยน <= เป็น <", code: `void setup() {
   Serial.begin(9600);
   int sum = 0;                    // ผลรวม เริ่มจาก 0
   for (int i = 1; i < 4; i++) {
@@ -58,7 +58,7 @@ void loop() {
 `,
       text: "ก่อนกดอะไร ให้ทำนายว่าบรรทัดสุดท้ายจะพิมพ์ Sum = เท่าใด แล้วกด “ทำจนจบโปรแกรม” เพื่อตรวจคำตอบ",
       q: "คำถาม: เปลี่ยนเครื่องหมายเพียงตัวเดียว ลูปทำงานน้อยลงกี่รอบ ดูจากตารางว่าหายไปตรงไหน" },
-    { title: "แก้ให้บวกเลขคู่", predict: false, editable: true, code: `void setup() {
+    { title: "แก้ให้บวกเลขคู่", editable: true, code: `void setup() {
   Serial.begin(9600);
   int sum = 0;                    // ผลรวม เริ่มจาก 0
   for (int i = 1; i <= 4; i++) {

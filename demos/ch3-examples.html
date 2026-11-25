@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ตัวอย่างในบทที่ 3: Arduino Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../engine/arduino-sim.css">
+</head>
+<body>
+<div id="app"></div>
+<script src="../engine/arduino-core.js"></script>
+<script src="../engine/arduino-sim.js"></script>
+<script>
+ArduinoSim.mount({
+  title: "ตัวอย่างในบทที่ 3",
+  back: "../index.html",
+  lede: "โค้ดตัวอย่างทุกตัวของบทที่ 3 พร้อมวงจรบนบอร์ดเสมือน คัดลอกไปใช้ได้ทันทีโดยการย่อหน้าและคอมเมนต์ภาษาไทยไม่ผิดเพี้ยน",
+  serial: true,
+  missions: [
+    { tab: "3.1", title: "ตัวอย่างที่ 3.1 เปิด LED บนบอร์ด (ขา 13)", speed: 8, realtime: 1, boardList: [{"type": "led", "pin": 13, "color": "yellow", "label": "LED บนบอร์ด"}], code: `// ตัวอย่างที่ 3.1 เปิด LED บนบอร์ด (ขา 13)
+void setup() {
+  pinMode(LED_BUILTIN, OUTPUT);     // กำหนดขา 13 เป็นเอาต์พุต
+  digitalWrite(LED_BUILTIN, HIGH);  // ส่ง 5 V ออกขา 13 ไฟติด
+}
+
+void loop() {
+}
+`,
+      text: "LED บนบอร์ดที่ขา 13 ติดค้างหลัง setup() ทำงาน กด “คัดลอกโค้ด” เพื่อนำไปวางใน Tinkercad หรือ Arduino IDE" },
+    { tab: "3.2", title: "ตัวอย่างที่ 3.2 LED กะพริบ (Blink)", speed: 8, realtime: 1, boardList: [{"type": "led", "pin": 13, "color": "yellow", "label": "LED บนบอร์ด"}], code: `// ตัวอย่างที่ 3.2 LED กะพริบ (Blink)
+void setup() {
+  pinMode(LED_BUILTIN, OUTPUT);
+}
+
+void loop() {
+  digitalWrite(LED_BUILTIN, HIGH);  // ไฟติด
+  delay(500);                       // รอ 0.5 วินาที
+  digitalWrite(LED_BUILTIN, LOW);   // ไฟดับ
+  delay(500);
+}
+`,
+      text: "กด “รันต่อเนื่อง” แล้ว LED บนบอร์ดจะกะพริบตามเวลาจริง กด “คัดลอกโค้ด” เพื่อนำไปวางใน Tinkercad หรือ Arduino IDE" },
+    { tab: "3.3", title: "ตัวอย่างที่ 3.3 LED ภายนอกที่ขา 8 กะพริบ", speed: 8, realtime: 1, boardList: [{"type": "led", "pin": 8, "color": "red", "label": "LED ภายนอก"}], code: `// ตัวอย่างที่ 3.3 LED ภายนอกที่ขา 8 กะพริบ
+const int LED_PIN = 8;              // ตั้งชื่อขาไว้ที่เดียว แก้ง่าย
+
+void setup() {
+  pinMode(LED_PIN, OUTPUT);
+}
+
+void loop() {
+  digitalWrite(LED_PIN, HIGH);
+  delay(1000);                      // ติด 1 วินาที
+  digitalWrite(LED_PIN, LOW);
+  delay(500);                       // ดับ 0.5 วินาที
+}
+`,
+      text: "LED ภายนอกต่อที่ขา 8 ผ่านตัวต้านทาน 220 Ω (ตารางที่ 3.2) กด “รันต่อเนื่อง” ดูจังหวะติด 1 วินาที ดับ 0.5 วินาที กด “คัดลอกโค้ด” เพื่อนำไปวางใน Tinkercad หรือ Arduino IDE" },
+    { tab: "3.4", title: "ตัวอย่างที่ 3.4 อ่านปุ่มกดที่ต่อตัวต้านทาน pull-down ภายนอก", speed: 8, realtime: 1, boardList: [{"type": "button", "pin": 7, "label": "ปุ่มกด", "to": "5v", "resistor": "pulldown"}], code: `// ตัวอย่างที่ 3.4 อ่านปุ่มกดที่ต่อตัวต้านทาน pull-down ภายนอก
+const int BUTTON_PIN = 7;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(BUTTON_PIN, INPUT);       // อินพุตธรรมดา ใช้ตัวต้านทาน 10 kΩ ภายนอก
+}
+
+void loop() {
+  int state = digitalRead(BUTTON_PIN);  // ได้ 1 (HIGH) หรือ 0 (LOW)
+  Serial.println(state);            // ไม่กด = 0, กด = 1
+  delay(200);
+}
+`,
+      text: "ปุ่มต่อจาก 5V ไปขา 7 และมีตัวต้านทาน pull-down 10 kΩ (ตารางที่ 3.3) กด “รันต่อเนื่อง” แล้วกดปุ่มค้างไว้ ดูค่าใน Serial Monitor กด “คัดลอกโค้ด” เพื่อนำไปวางใน Tinkercad หรือ Arduino IDE" },
+    { tab: "3.5", title: "ตัวอย่างที่ 3.5 อ่านปุ่มกดด้วยตัวต้านทาน pull-up ภายใน", speed: 8, realtime: 1, boardList: [{"type": "button", "pin": 7, "label": "ปุ่มกด", "to": "gnd"}], code: `// ตัวอย่างที่ 3.5 อ่านปุ่มกดด้วยตัวต้านทาน pull-up ภายใน
+const int BUTTON_PIN = 7;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);  // เปิดตัวต้านทาน pull-up ภายในชิป
+}
+
+void loop() {
+  int state = digitalRead(BUTTON_PIN);
+  Serial.println(state);            // ไม่กด = 1, กด = 0 (แอคทีฟโลว์)
+  delay(200);
+}
+`,
+      text: "ปุ่มต่อจากขา 7 ลง GND และใช้ INPUT_PULLUP (ตารางที่ 3.4) กด “รันต่อเนื่อง” แล้วกดปุ่มค้างไว้ ค่าที่ได้กลับด้านกับตัวอย่างที่ 3.4 กด “คัดลอกโค้ด” เพื่อนำไปวางใน Tinkercad หรือ Arduino IDE" },
+    { tab: "3.6", title: "ตัวอย่างที่ 3.6 กดปุ่มแล้ว LED ภายนอกติด", speed: 8, boardList: [{"type": "button", "pin": 7, "label": "ปุ่มกด", "to": "gnd"}, {"type": "led", "pin": 8, "color": "red", "label": "LED"}], code: `// ตัวอย่างที่ 3.6 กดปุ่มแล้ว LED ภายนอกติด
+const int BUTTON_PIN = 7;
+const int LED_PIN = 8;
+
+void setup() {
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  pinMode(LED_PIN, OUTPUT);
+}
+
+void loop() {
+  if (digitalRead(BUTTON_PIN) == LOW) {   // INPUT_PULLUP: กด = LOW
+    digitalWrite(LED_PIN, HIGH);          // กดปุ่ม ไฟติด
+  } else {
+    digitalWrite(LED_PIN, LOW);           // ปล่อยปุ่ม ไฟดับ
+  }
+}
+`,
+      text: "ปุ่มที่ขา 7 และ LED ที่ขา 8 (ตารางที่ 3.5) กด “รันต่อเนื่อง” แล้วกดปุ่มค้างไว้ กด “คัดลอกโค้ด” เพื่อนำไปวางใน Tinkercad หรือ Arduino IDE" },
+    { tab: "3.7", title: "ตัวอย่างที่ 3.7 อินเตอร์ล็อก: เครื่องเดินได้เมื่อประตูปิด และ เปิดสวิตช์เดินเครื่อง", speed: 8, boardList: [{"type": "slide", "pin": 6, "label": "สวิตช์ประตู", "on": "ปิด", "off": "เปิด"}, {"type": "slide", "pin": 7, "label": "สวิตช์สั่งเดินเครื่อง", "on": "สั่งเดิน", "off": "หยุด"}, {"type": "led", "pin": 8, "color": "green", "label": "มอเตอร์ (LED)"}], code: `// ตัวอย่างที่ 3.7 อินเตอร์ล็อก: เครื่องเดินได้เมื่อประตูปิด และ เปิดสวิตช์เดินเครื่อง
+const int DOOR_PIN = 6;     // สวิตช์เลื่อนแทนสวิตช์ตรวจประตู (HIGH = ประตูปิด)
+const int RUN_PIN = 7;      // สวิตช์เลื่อนสำหรับสั่งเดินเครื่อง (HIGH = สั่งเดิน)
+const int MOTOR_PIN = 8;    // LED แทนมอเตอร์
+
+void setup() {
+  pinMode(DOOR_PIN, INPUT);  // สวิตช์เลื่อนต่อกับ 5V หรือ GND เสมอ จึงไม่ลอย
+  pinMode(RUN_PIN, INPUT);
+  pinMode(MOTOR_PIN, OUTPUT);
+}
+
+void loop() {
+  bool doorClosed = digitalRead(DOOR_PIN) == HIGH;
+  bool runCommand = digitalRead(RUN_PIN) == HIGH;
+
+  if (doorClosed && runCommand) {   // ต้องเป็นจริงทั้งสองเงื่อนไข
+    digitalWrite(MOTOR_PIN, HIGH);
+  } else {
+    digitalWrite(MOTOR_PIN, LOW);
+  }
+}
+`,
+      text: "สวิตช์เลื่อนที่ขา 6 แทนสวิตช์ตรวจประตู และที่ขา 7 แทนสวิตช์สั่งเดินเครื่อง (ตารางที่ 3.7) กด “รันต่อเนื่อง” แล้วลองให้ครบ 4 แบบ กด “คัดลอกโค้ด” เพื่อนำไปวางใน Tinkercad หรือ Arduino IDE" },
+    { tab: "3.8", title: "ตัวอย่างที่ 3.8 นับชิ้นงานด้วยอินเทอร์รัปต์ที่ขา 2", speed: 8, realtime: 1, boardList: [{"type": "button", "pin": 2, "label": "สวิตช์ตรวจชิ้นงาน", "to": "gnd"}], code: `// ตัวอย่างที่ 3.8 นับชิ้นงานด้วยอินเทอร์รัปต์ที่ขา 2
+const int SENSOR_PIN = 2;          // ปุ่มกดแทนสวิตช์ตรวจชิ้นงาน
+volatile byte count = 0;          // ตัวแปรที่ ISR แก้ไข ต้องเป็น volatile
+byte lastShown = 0;                // ค่าที่แสดงครั้งล่าสุด
+
+void countISR() {                  // ISR: สั้นที่สุด ไม่มี delay และไม่มี Serial
+  count++;
+}
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(SENSOR_PIN, INPUT_PULLUP);
+  // กดปุ่ม = สัญญาณเปลี่ยนจาก HIGH เป็น LOW (ขอบขาลง)
+  attachInterrupt(digitalPinToInterrupt(SENSOR_PIN), countISR, FALLING);
+}
+
+void loop() {
+  if (count != lastShown) {        // แสดงผลเฉพาะเมื่อค่าเปลี่ยน
+    lastShown = count;
+    Serial.print("Count = ");
+    Serial.println(lastShown);
+  }
+  // งานอื่นของระบบทำต่อได้ตามปกติ การนับไม่พลาดแม้ loop ทำงานช้า
+  delay(1000);
+}
+`,
+      text: "ปุ่มที่ขา 2 แทนสวิตช์ตรวจชิ้นงาน (ตารางที่ 3.9) กด “รันต่อเนื่อง” แล้วกดปุ่มสั้น ๆ หลายครั้ง ทุกการกดถูกนับแม้ loop() จะมี delay(1000) กด “คัดลอกโค้ด” เพื่อนำไปวางใน Tinkercad หรือ Arduino IDE" },
+  ],
+});
+</script>
+</body>
+</html>

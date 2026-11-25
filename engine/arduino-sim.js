@@ -31,8 +31,8 @@
 
   function mount(D) {
     const root = document.getElementById("app");
-    const hasBoard = D.board && D.board.length > 0;
-    const inputs = (D.board || []).filter((w) => w.type !== "led");
+    const hasBoard = (D.board && D.board.length > 0) || D.missions.some((m) => m.boardList && m.boardList.length);
+    let BOARD = D.board || [];
     // ---------- โครงหน้า ----------
     root.innerHTML = `
       <div class="as-wrap">
@@ -94,13 +94,13 @@
     const widgetState = {};
     const bounceQ = {}, presses = {};
     let hist = [];
-    const W = (i) => Object.assign({}, D.board[i], M && M.board && M.board[i] ? M.board[i] : {});
+    const W = (i) => Object.assign({}, BOARD[i], M && M.board && M.board[i] ? M.board[i] : {});
 
     // ---------- อุปกรณ์บนบอร์ด ----------
     function buildBoard() {
       if (!hasBoard) return;
       const b = $("asBoard"); b.innerHTML = "";
-      D.board.forEach((w, i) => {
+      BOARD.forEach((w, i) => {
         const part = el("div", { class: "as-part" });
         const pinTxt = typeof w.pin === "string" ? w.pin : "ขา " + w.pin;
         if (w.type === "led") {
@@ -171,7 +171,7 @@
     function potAdc(w, v) { return Math.min(1023, Math.ceil((v - w.min) * 1023 / (w.max - w.min))); }
     const io = {
       digitalIn(pin, mode) {
-        const i = D.board ? D.board.findIndex((w) => w.type !== "led" && pinOf(w) === pin) : -1;
+        const i = BOARD.length ? BOARD.findIndex((w) => w.type !== "led" && pinOf(w) === pin) : -1;
         if (i < 0) return 0;
         const w = W(i), s = widgetState[i] || 0;
         if (w.type === "pot") return potAdc(w, s) >= 614 ? 1 : 0;
@@ -180,7 +180,7 @@
         return lv === null ? (Math.random() < 0.5 ? 1 : 0) : lv;
       },
       analogIn(pin) {
-        const i = D.board ? D.board.findIndex((w) => ["pot", "ldr", "tmp36"].includes(w.type) && pinOf(w) === pin) : -1;
+        const i = BOARD.length ? BOARD.findIndex((w) => ["pot", "ldr", "tmp36"].includes(w.type) && pinOf(w) === pin) : -1;
         if (i < 0) return 0;
         const w = W(i), s = widgetState[i];
         let a = w.type === "pot" ? potAdc(w, s) : w.type === "ldr" ? ldrModel(w, s).adc : tmpModel(s).adc;
@@ -188,13 +188,13 @@
         return Math.max(0, Math.min(1023, a));
       },
       pulseIn(pin) {
-        const i = D.board ? D.board.findIndex((w) => w.type === "ultrasonic" && w.echo === pin) : -1;
+        const i = BOARD.length ? BOARD.findIndex((w) => w.type === "ultrasonic" && w.echo === pin) : -1;
         return i < 0 ? 0 : usModel(widgetState[i]);
       },
     };
     function renderBoard() {
       if (!hasBoard) return;
-      D.board.forEach((w, i) => {
+      BOARD.forEach((w, i) => {
         const e = $("asW" + i);
         if (w.type === "led") {
           const p = machine ? machine.pins[pinOf(w)] : null;
@@ -531,7 +531,10 @@
       mi = i; M = D.missions[i]; score = { ok: 0, all: 0 }; editing = false;
       document.querySelectorAll(".as-tab").forEach((t, j) => t.setAttribute("aria-selected", j === i ? "true" : "false"));
       $("asCodeTitle").textContent = M.title;
-      (D.board || []).forEach((w, j) => {
+      const nb = M.boardList || D.board || [];
+      if (nb !== BOARD) { BOARD = nb; for (const k in widgetState) delete widgetState[k]; buildBoard(); }
+      if (hasBoard) $("asBoard").style.display = BOARD.length ? "" : "none";
+      BOARD.forEach((w, j) => {
         const init = M.inputs && M.inputs[j] !== undefined ? M.inputs[j] : (w.init !== undefined ? w.init : (w.type === "pot" ? w.min : w.type === "ultrasonic" ? 100 : w.type === "tmp36" ? 25 : w.type === "ldr" ? 50 : 0));
         widgetState[j] = init;
         if (w.type === "button" && $("asWH" + j)) $("asWH" + j).checked = false;

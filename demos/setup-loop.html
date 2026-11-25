@@ -26,7 +26,7 @@ ArduinoSim.mount({
     cols: [{ label: "รอบที่", iter: true }, { label: "count", var: "count" }, { label: "เวลาจำลอง", time: true }],
   },
   missions: [
-    { title: "อะไรทำครั้งเดียว อะไรทำซ้ำ", predict: false, speed: 6, code: `int count = 0;                    // ตัวแปรส่วนกลาง ค่าคงอยู่ข้ามรอบ
+    { title: "อะไรทำครั้งเดียว อะไรทำซ้ำ", speed: 6, code: `int count = 0;                    // ตัวแปรส่วนกลาง ค่าคงอยู่ข้ามรอบ
 
 void setup() {
   Serial.begin(9600);
@@ -42,7 +42,7 @@ void loop() {
 `,
       text: "กด “ทำบรรทัดถัดไป” จนจบ setup() แล้วกด “ทำจนจบรอบ loop()” อีก 3 ครั้ง ดูว่าแถบสีเหลืองกลับไปที่บรรทัดไหนทุกครั้งที่จบรอบ",
       q: "คำถาม: Start ถูกพิมพ์กี่ครั้ง count มีค่าเท่าใดหลังรอบที่ 3 และ delay(1000) ทำให้เวลาจำลองเพิ่มขึ้นรอบละเท่าใด" },
-    { title: "ย้ายตัวแปรเข้าไปใน loop()", predict: false, speed: 6, code: `void setup() {
+    { title: "ย้ายตัวแปรเข้าไปใน loop()", speed: 6, code: `void setup() {
   Serial.begin(9600);
   Serial.println("Start");        // ทำครั้งเดียว
 }
@@ -57,7 +57,7 @@ void loop() {
 `,
       text: "โค้ดนี้ประกาศ count ไว้ข้างใน loop() กด “ทำจนจบรอบ loop()” 3 ครั้ง ดูค่า count ในตารางและในค่าในหน่วยความจำ",
       q: "คำถาม: ทำไม count ไม่เพิ่มขึ้นเลย ตัวแปรที่ประกาศใน loop() เกิดและหายไปเมื่อใด" },
-    { title: "หยุดนับเมื่อครบ 5", predict: false, editable: true, speed: 8, code: `int count = 0;                    // ตัวแปรส่วนกลาง ค่าคงอยู่ข้ามรอบ
+    { title: "หยุดนับเมื่อครบ 5", editable: true, speed: 8, code: `int count = 0;                    // ตัวแปรส่วนกลาง ค่าคงอยู่ข้ามรอบ
 
 void setup() {
   Serial.begin(9600);

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ตัวอย่างในบทที่ 4: Arduino Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../engine/arduino-sim.css">
+</head>
+<body>
+<div id="app"></div>
+<script src="../engine/arduino-core.js"></script>
+<script src="../engine/arduino-sim.js"></script>
+<script>
+ArduinoSim.mount({
+  title: "ตัวอย่างในบทที่ 4",
+  back: "../index.html",
+  lede: "โค้ดตัวอย่างทุกตัวของบทที่ 4 บนบอร์ดเสมือนที่มี potentiometer ที่ขา A0 photoresistor ที่ขา A1 และ LED ที่ขา 8",
+  serial: true,
+  board: [{"type": "pot", "pin": "A0", "label": "Potentiometer", "min": 0, "max": 100, "unit": "% ของช่วงหมุน", "init": 50}, {"type": "ldr", "pin": "A1", "label": "Photoresistor (ความสว่าง)", "init": 50}, {"type": "led", "pin": 8, "color": "yellow", "label": "LED"}],
+  missions: [
+    { tab: "4.1", title: "ตัวอย่างที่ 4.1 อ่านค่า potentiometer ที่ขา A0 แล้วแปลงเป็นแรงดัน", speed: 8, realtime: 1, code: `// ตัวอย่างที่ 4.1 อ่านค่า potentiometer ที่ขา A0 แล้วแปลงเป็นแรงดัน
+const int POT_PIN = A0;
+
+void setup() {
+  Serial.begin(9600);               // ขาอนาล็อกไม่ต้องใช้ pinMode()
+}
+
+void loop() {
+  int adc = analogRead(POT_PIN);    // ได้ค่า 0 ถึง 1023
+  float volt = adc * 5.0 / 1023.0;  // ใช้ 5.0 เพื่อให้คำนวณแบบทศนิยม
+  Serial.print("ADC = ");
+  Serial.print(adc);
+  Serial.print("   V = ");
+  Serial.println(volt);
+  delay(500);
+}
+`,
+      text: "กด “รันต่อเนื่อง” แล้วเลื่อนพอต ดูค่า ADC และแรงดันใน Serial Monitor กด “คัดลอกโค้ด” เพื่อนำไปวางใน Tinkercad หรือ Arduino IDE" },
+    { tab: "4.2", title: "ตัวอย่างที่ 4.2 อ่านค่าความสว่างจาก photoresistor ที่ขา A1", speed: 8, realtime: 1, code: `// ตัวอย่างที่ 4.2 อ่านค่าความสว่างจาก photoresistor ที่ขา A1
+const int LDR_PIN = A1;
+
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+  int light = analogRead(LDR_PIN);  // สว่างมาก = ค่ามาก (photoresistor อยู่ฝั่ง 5V)
+  Serial.print("Light = ");
+  Serial.println(light);
+  delay(500);
+}
+`,
+      text: "กด “รันต่อเนื่อง” แล้วเลื่อนความสว่าง ดูค่าที่อ่านได้จาก photoresistor กด “คัดลอกโค้ด” เพื่อนำไปวางใน Tinkercad หรือ Arduino IDE" },
+    { tab: "4.3", title: "ตัวอย่างที่ 4.3 ไฟส่องสว่างอัตโนมัติ: มืดแล้วไฟติด", speed: 8, realtime: 1, code: `// ตัวอย่างที่ 4.3 ไฟส่องสว่างอัตโนมัติ: มืดแล้วไฟติด
+const int LDR_PIN = A1;
+const int LED_PIN = 8;
+const int DARK_LEVEL = 300;         // ค่าเกณฑ์ ได้จากการวัดค่าตอนมืดและตอนสว่าง
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(LED_PIN, OUTPUT);
+}
+
+void loop() {
+  int light = analogRead(LDR_PIN);
+  if (light < DARK_LEVEL) {
+    digitalWrite(LED_PIN, HIGH);    // มืด เปิดไฟ
+  } else {
+    digitalWrite(LED_PIN, LOW);     // สว่าง ปิดไฟ
+  }
+  Serial.println(light);
+  delay(200);
+}
+`,
+      text: "กด “รันต่อเนื่อง” แล้วเลื่อนความสว่างลงจนค่าที่อ่านได้ต่ำกว่า 300 LED จะติด กด “คัดลอกโค้ด” เพื่อนำไปวางใน Tinkercad หรือ Arduino IDE" },
+    { tab: "4.4", title: "ตัวอย่างที่ 4.4 ใช้ potentiometer ตั้งอุณหภูมิเป้าหมาย 20 ถึง 80 °C ด้วย map()", speed: 8, realtime: 1, code: `// ตัวอย่างที่ 4.4 ใช้ potentiometer ตั้งอุณหภูมิเป้าหมาย 20 ถึง 80 °C ด้วย map()
+const int POT_PIN = A0;
+
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+  int adc = analogRead(POT_PIN);
+  int setTemp = map(adc, 0, 1023, 20, 80);   // แปลงช่วง 0–1023 เป็น 20–80
+  Serial.print("Set temperature = ");
+  Serial.print(setTemp);
+  Serial.println(" C");
+  delay(500);
+}
+`,
+      text: "กด “รันต่อเนื่อง” แล้วเลื่อนพอต ดูอุณหภูมิเป้าหมายที่ได้จาก map() กด “คัดลอกโค้ด” เพื่อนำไปวางใน Tinkercad หรือ Arduino IDE" },
+  ],
+});
+</script>
+</body>
+</html>

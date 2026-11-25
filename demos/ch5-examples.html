@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ตัวอย่างในบทที่ 5: Arduino Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../engine/arduino-sim.css">
+</head>
+<body>
+<div id="app"></div>
+<script src="../engine/arduino-core.js"></script>
+<script src="../engine/arduino-sim.js"></script>
+<script>
+ArduinoSim.mount({
+  title: "ตัวอย่างในบทที่ 5",
+  back: "../index.html",
+  lede: "โค้ดตัวอย่างทุกตัวของบทที่ 5 บนบอร์ดเสมือนที่มีเซนเซอร์อัลตราโซนิก (Trig ขา 6, Echo ขา 7) TMP36 ที่ขา A2 PIR ที่ขา 4 และ LED ที่ขา 8",
+  serial: true,
+  board: [{"type": "ultrasonic", "trig": 6, "echo": 7, "pin": 7, "label": "ระยะถึงวัตถุ (HC-SR04)", "init": 100}, {"type": "tmp36", "pin": "A2", "label": "อุณหภูมิ (TMP36)", "init": 25}, {"type": "slide", "pin": 4, "label": "PIR", "on": "ตรวจพบ", "off": "ไม่พบ"}, {"type": "led", "pin": 8, "color": "red", "label": "LED"}],
+  missions: [
+    { tab: "5.1", title: "ตัวอย่างที่ 5.1 วัดระยะทางด้วยเซนเซอร์อัลตราโซนิก HC-SR04", speed: 8, realtime: 1, code: `// ตัวอย่างที่ 5.1 วัดระยะทางด้วยเซนเซอร์อัลตราโซนิก HC-SR04
+const int TRIG_PIN = 6;
+const int ECHO_PIN = 7;
+
+// ส่งพัลส์กระตุ้นแล้วคืนค่าระยะทาง (cm) ถ้าไม่มีเสียงสะท้อนจะคืนค่า 0
+float readDistanceCm() {
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH);          // พัลส์กระตุ้นกว้าง 10 µs
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+  // เวลาที่ขา Echo เป็น HIGH (µs) รอไม่เกิน 30000 µs
+  unsigned long t = pulseIn(ECHO_PIN, HIGH, 30000);
+  return t * 0.0343 / 2.0;               // เสียงเดินทาง 0.0343 cm/µs หาร 2 เพราะไปและกลับ
+}
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+}
+
+void loop() {
+  float d = readDistanceCm();
+  if (d == 0) {
+    Serial.println("No echo");           // ไม่พบวัตถุในระยะ
+  } else {
+    Serial.print("Distance = ");
+    Serial.print(d);
+    Serial.println(" cm");
+  }
+  delay(500);
+}
+`,
+      text: "กด “รันต่อเนื่อง” แล้วเลื่อนระยะของวัตถุ ลองเลื่อนเกิน 400 cm ด้วย กด “คัดลอกโค้ด” เพื่อนำไปวางใน Tinkercad หรือ Arduino IDE" },
+    { tab: "5.2", title: "ตัวอย่างที่ 5.2 วัดอุณหภูมิด้วย TMP36 ที่ขา A2", speed: 8, realtime: 1, code: `// ตัวอย่างที่ 5.2 วัดอุณหภูมิด้วย TMP36 ที่ขา A2
+const int TMP_PIN = A2;
+
+// อ่านแรงดันจาก TMP36 แล้วแปลงเป็นองศาเซลเซียส
+float readTempC() {
+  int adc = analogRead(TMP_PIN);
+  float volt = adc * 5.0 / 1023.0;       // สมการ (4.2)
+  return (volt - 0.5) * 100.0;           // 0.5 V ที่ 0 °C และเพิ่ม 10 mV ต่อ 1 °C
+}
+
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+  Serial.print("T = ");
+  Serial.print(readTempC());
+  Serial.println(" C");
+  delay(1000);
+}
+`,
+      text: "กด “รันต่อเนื่อง” แล้วเลื่อนอุณหภูมิ ดูค่าที่คำนวณได้ใน Serial Monitor กด “คัดลอกโค้ด” เพื่อนำไปวางใน Tinkercad หรือ Arduino IDE" },
+    { tab: "5.3", title: "ตัวอย่างที่ 5.3 ตรวจจับการเคลื่อนไหวด้วย PIR", speed: 8, code: `// ตัวอย่างที่ 5.3 ตรวจจับการเคลื่อนไหวด้วย PIR
+const int PIR_PIN = 4;
+const int LED_PIN = 8;
+int lastState = LOW;                     // สถานะของ PIR รอบก่อน
+unsigned int events = 0;                 // จำนวนครั้งที่ตรวจพบ
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(PIR_PIN, INPUT);
+  pinMode(LED_PIN, OUTPUT);
+}
+
+void loop() {
+  int state = digitalRead(PIR_PIN);
+  digitalWrite(LED_PIN, state);          // LED ติดตลอดเวลาที่ PIR เป็น HIGH
+
+  if (lastState == LOW && state == HIGH) {   // เพิ่งตรวจพบ (ขอบขาขึ้น)
+    events++;
+    Serial.print("Motion detected #");
+    Serial.println(events);
+  }
+  lastState = state;
+}
+`,
+      text: "สวิตช์ PIR แทนสัญญาณจากเซนเซอร์ PIR กด “รันต่อเนื่อง” แล้วเลื่อนสวิตช์เป็นตรวจพบและกลับเป็นไม่พบหลายครั้ง ข้อความถูกพิมพ์ครั้งเดียวต่อการตรวจพบหนึ่งครั้ง กด “คัดลอกโค้ด” เพื่อนำไปวางใน Tinkercad หรือ Arduino IDE" },
+  ],
+});
+</script>
+</body>
+</html>

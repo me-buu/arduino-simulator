@@ -31,7 +31,7 @@ ArduinoSim.mount({
     cols: [{ label: "รอบที่", iter: true }, { label: "temp", var: "temp" }, { label: "ไฟเขียว", pin: 10 }, { label: "ไฟเหลือง", pin: 9 }, { label: "ไฟแดง", pin: 8 }],
   },
   missions: [
-    { title: "ไฟเตือน 3 ระดับ", predict: true, speed: 8, code: `const int RED = 8;
+    { title: "ไฟเตือน 3 ระดับ", speed: 8, code: `const int RED = 8;
 const int YELLOW = 9;
 const int GREEN = 10;
 
@@ -60,9 +60,9 @@ void loop() {
   }
 }
 `, inputs: { 0: 70 },
-      text: "อุณหภูมิตั้งไว้ 70 °C กด “ทำบรรทัดถัดไป” จนจบรอบ loop() ก่อนตรวจแต่ละเงื่อนไข ตัวจำลองจะให้ทำนายว่าจริงหรือเท็จ",
+      text: "อุณหภูมิตั้งไว้ 70 °C กด “ทำบรรทัดถัดไป” จนจบรอบ loop() ดูว่าแถบสีเหลืองผ่านเงื่อนไขใดบ้าง และข้ามบรรทัดใดไป",
       q: "คำถาม: ไฟดวงไหนติด โปรแกรมตรวจเงื่อนไขกี่ข้อ และทำไมไม่ตรวจข้อที่เหลือ" },
-    { title: "ค่าบนขอบของเงื่อนไข", predict: false, speed: 10, code: `const int RED = 8;
+    { title: "ค่าบนขอบของเงื่อนไข", speed: 10, code: `const int RED = 8;
 const int YELLOW = 9;
 const int GREEN = 10;
 
@@ -93,7 +93,7 @@ void loop() {
 `, inputs: { 0: 50 },
       text: "กด “รันต่อเนื่อง” แล้วเลื่อนอุณหภูมิไปที่ 60, 61, 80 และ 81 °C ทีละค่า ดูไฟบนบอร์ดและตาราง",
       q: "คำถาม: ที่ 60 °C และ 80 °C พอดี ไฟสีอะไรติด เพราะอะไร ถ้าต้องการให้ 80 °C เป็นไฟแดง ต้องแก้เครื่องหมายใด" },
-    { title: "สลับลำดับเงื่อนไข (มีจุดผิด)", predict: true, editable: true, speed: 10, code: `const int RED = 8;
+    { title: "สลับลำดับเงื่อนไข (มีจุดผิด)", editable: true, speed: 10, code: `const int RED = 8;
 const int YELLOW = 9;
 const int GREEN = 10;
 

@@ -23,7 +23,7 @@ ArduinoSim.mount({
   trace: { title: "ตารางติดตามค่า (หนึ่งแถวต่อ loop() หนึ่งรอบ)", at: "loopEnd", empty: "ยังไม่จบรอบแรกของ loop()",
     cols: [{ label: "รอบที่", iter: true }, { label: "ปุ่ม", widget: 0 }, { label: "state", var: "state" }] },
   missions: [
-    { title: "INPUT_PULLUP: ปุ่มต่อลง GND", speed: 8, realtime: 1, predictVars: ["state"], code: `const int BUTTON_PIN = 7;
+    { title: "INPUT_PULLUP: ปุ่มต่อลง GND", speed: 8, realtime: 1, code: `const int BUTTON_PIN = 7;
 
 void setup() {
   Serial.begin(9600);
@@ -36,7 +36,7 @@ void loop() {
   delay(300);
 }
 `, board: { 0: { to: "gnd", resistor: "none" } },
-      text: "ปุ่มต่อจากขา 7 ลง GND (ตัวอย่างที่ 3.5) กด “ทำบรรทัดถัดไป” ก่อนอ่านขาทุกครั้งตัวจำลองจะให้ทำนายค่า state ลองทั้งตอนปล่อยปุ่มและตอนติ๊ก “ค้างปุ่มไว้”",
+      text: "ปุ่มต่อจากขา 7 ลง GND (ตัวอย่างที่ 3.5) กด “ทำบรรทัดถัดไป” ทีละบรรทัด ลองทั้งตอนปล่อยปุ่มและตอนติ๊ก “ค้างปุ่มไว้” ก่อนผ่านบรรทัด digitalRead ลองคิดก่อนว่า state จะได้ค่าเท่าใด",
       q: "คำถาม: ไม่กดอ่านได้เท่าใด กดอ่านได้เท่าใด ทำไมจึงกลับด้านกับที่คาดไว้" },
     { title: "INPUT กับตัวต้านทาน pull-down ภายนอก", speed: 8, realtime: 1, code: `const int BUTTON_PIN = 7;
 

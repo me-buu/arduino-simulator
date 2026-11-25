@@ -26,7 +26,7 @@ ArduinoSim.mount({
   trace: { title: "ตารางติดตามค่า (หนึ่งแถวต่อ loop() หนึ่งรอบ)", at: "loopEnd", empty: "ยังไม่จบรอบแรกของ loop()",
     cols: [{ label: "รอบที่", iter: true }, { label: "adc", var: "adc" }, { label: "volt", var: "volt" }, { label: "light", var: "light" }] },
   missions: [
-    { title: "อ่าน potentiometer แล้วแปลงเป็นแรงดัน", speed: 8, realtime: 1, predictVars: ["volt"], code: `// ตัวอย่างที่ 4.1 อ่านค่า potentiometer ที่ขา A0 แล้วแปลงเป็นแรงดัน
+    { title: "อ่าน potentiometer แล้วแปลงเป็นแรงดัน", speed: 8, realtime: 1, code: `// ตัวอย่างที่ 4.1 อ่านค่า potentiometer ที่ขา A0 แล้วแปลงเป็นแรงดัน
 const int POT_PIN = A0;
 
 void setup() {
@@ -43,9 +43,9 @@ void loop() {
   delay(500);
 }
 `,
-      text: "พอตตั้งไว้กลางช่วง กด “ทำบรรทัดถัดไป” ก่อนคำนวณ volt ตัวจำลองจะให้ทำนายค่า จากนั้นเลื่อนพอตไปค่าอื่นแล้วทำซ้ำ",
+      text: "พอตตั้งไว้กลางช่วง กด “ทำบรรทัดถัดไป” ทีละบรรทัด ก่อนผ่านบรรทัดที่คำนวณ volt ลองคิดก่อนว่าจะได้ค่าเท่าใด จากนั้นเลื่อนพอตไปค่าอื่นแล้วทำซ้ำ",
       q: "คำถาม: ค่า ADC 512 คิดเป็นแรงดันเท่าใด ถ้าแรงดันเปลี่ยน 1 mV ค่า ADC จะเปลี่ยนหรือไม่ เพราะอะไร" },
-    { title: "ลืมใส่ .0 (มีจุดผิด)", speed: 8, realtime: 1, predictVars: ["volt"], editable: true, code: `// ตัวอย่างที่ 4.1 อ่านค่า potentiometer ที่ขา A0 แล้วแปลงเป็นแรงดัน
+    { title: "ลืมใส่ .0 (มีจุดผิด)", speed: 8, realtime: 1, editable: true, code: `// ตัวอย่างที่ 4.1 อ่านค่า potentiometer ที่ขา A0 แล้วแปลงเป็นแรงดัน
 const int POT_PIN = A0;
 
 void setup() {
@@ -62,7 +62,7 @@ void loop() {
   delay(500);
 }
 `,
-      text: "โค้ดนี้เขียน adc * 5 / 1023 ทำนายค่า volt ก่อนทำบรรทัดนั้น แล้วเลื่อนพอตไปหลายตำแหน่ง",
+      text: "โค้ดนี้เขียน adc * 5 / 1023 ลองคิดก่อนว่า volt จะได้ค่าเท่าใด แล้วเดินโค้ดตรวจ จากนั้นเลื่อนพอตไปหลายตำแหน่ง",
       q: "คำถาม: volt เป็นได้กี่ค่า ทำไมเป็นจำนวนเต็มทั้งที่ประกาศเป็น float กด “แก้โค้ด” แล้วแก้ให้ถูก" },
     { title: "Photoresistor ต่อไว้ฝั่ง 5V", speed: 8, realtime: 1, code: `// ตัวอย่างที่ 4.2 อ่านค่าความสว่างจาก photoresistor ที่ขา A1
 const int LDR_PIN = A1;

@@ -30,7 +30,7 @@ ArduinoSim.mount({
     cols: [{ label: "a", var: "a" }, { label: "b", var: "b" }, { label: "LED (ขา 8)", pin: 8, hl: true }],
   },
   missions: [
-    { title: "AND: อินเตอร์ล็อกเครื่องจักร", predict: true, speed: 8, code: `const int A_PIN = 6;     // สวิตช์ A
+    { title: "AND: อินเตอร์ล็อกเครื่องจักร", speed: 8, code: `const int A_PIN = 6;     // สวิตช์ A
 const int B_PIN = 7;     // สวิตช์ B
 const int LED_PIN = 8;
 
@@ -51,9 +51,9 @@ void loop() {
   }
 }
 `, inputs: { 0: 0, 1: 0 },
-      text: "สวิตช์ A คือประตูกันภัยปิด สวิตช์ B คือสั่งเดินเครื่อง LED คือมอเตอร์ ตั้งสวิตช์ให้ครบ 4 แบบ แต่ละแบบกด “ทำจนจบรอบ loop()” ตัวจำลองจะให้ทำนายเงื่อนไขทุกครั้ง",
+      text: "สวิตช์ A คือประตูกันภัยปิด สวิตช์ B คือสั่งเดินเครื่อง LED คือมอเตอร์ ตั้งสวิตช์ให้ครบ 4 แบบ แต่ละแบบกด “ทำจนจบรอบ loop()” ก่อนกด ลองคิดก่อนว่า LED จะติดหรือไม่",
       q: "คำถาม: มอเตอร์ทำงานกี่กรณีจาก 4 กรณี เมื่อ a เป็นเท็จ ทำไมป้ายท้ายบรรทัด if จึงบอกว่าด้านขวา “ไม่ต้องคำนวณ”" },
-    { title: "OR: ไฟเตือน", predict: false, speed: 10, code: `const int A_PIN = 6;     // สวิตช์ A
+    { title: "OR: ไฟเตือน", speed: 10, code: `const int A_PIN = 6;     // สวิตช์ A
 const int B_PIN = 7;     // สวิตช์ B
 const int LED_PIN = 8;
 
@@ -76,7 +76,7 @@ void loop() {
 `, inputs: { 0: 0, 1: 0 },
       text: "LED คือไฟเตือนที่ติดเมื่อสวิตช์ตัวใดตัวหนึ่งเปิด กด “รันต่อเนื่อง” แล้วสลับสวิตช์ให้ครบ 4 แบบ",
       q: "คำถาม: ตาราง OR ต่างจาก AND อย่างไร กรณีใดที่ Arduino ไม่ต้องคำนวณด้านขวาของ ||" },
-    { title: "แก้เงื่อนไขเอง", predict: false, editable: true, speed: 10, code: `const int A_PIN = 6;     // สวิตช์ A
+    { title: "แก้เงื่อนไขเอง", editable: true, speed: 10, code: `const int A_PIN = 6;     // สวิตช์ A
 const int B_PIN = 7;     // สวิตช์ B
 const int LED_PIN = 8;
 
